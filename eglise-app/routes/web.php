@@ -1,0 +1,69 @@
+<?php
+
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminEventController;
+use App\Http\Controllers\Admin\AdminMemberController;
+use App\Http\Controllers\Admin\AdminNotificationController;
+use App\Http\Controllers\Admin\AdminPaymentController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Parcours public / membre
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', [PageController::class, 'splash'])->name('splash');
+Route::get('/bienvenue', [PageController::class, 'home'])->name('home');
+
+Route::get('/connexion', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/connexion', [AuthController::class, 'login'])->name('login.attempt');
+
+Route::get('/inscription', [AuthController::class, 'showSignup'])->name('signup');
+Route::post('/inscription', [AuthController::class, 'signup'])->name('signup.attempt');
+
+Route::post('/deconnexion', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/enregistrement', [PageController::class, 'saving'])->name('saving');
+Route::get('/confirmation', [PageController::class, 'confirm'])->name('confirm');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/accueil', [PageController::class, 'accueil'])->name('accueil');
+
+    Route::get('/paiement', [PaymentController::class, 'show'])->name('payment');
+    Route::post('/paiement', [PaymentController::class, 'process'])->name('payment.process');
+    Route::get('/telechargement', [PaymentController::class, 'download'])->name('download');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Espace admin
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    Route::resource('evenements', AdminEventController::class)
+        ->parameters(['evenements' => 'event'])
+        ->names('events');
+
+    Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/creer', [AdminNotificationController::class, 'create'])->name('notifications.create');
+    Route::post('notifications', [AdminNotificationController::class, 'store'])->name('notifications.store');
+    Route::get('notifications/{notification}/modifier', [AdminNotificationController::class, 'edit'])->name('notifications.edit');
+    Route::put('notifications/{notification}', [AdminNotificationController::class, 'update'])->name('notifications.update');
+    Route::delete('notifications/{notification}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
+
+    Route::get('paiements', [AdminPaymentController::class, 'index'])->name('payments.index');
+    Route::put('paiements/{payment}/statut', [AdminPaymentController::class, 'updateStatus'])->name('payments.updateStatus');
+    Route::delete('paiements/{payment}', [AdminPaymentController::class, 'destroy'])->name('payments.destroy');
+
+    Route::get('membres', [AdminMemberController::class, 'index'])->name('members.index');
+    Route::get('membres/{member}/modifier', [AdminMemberController::class, 'edit'])->name('members.edit');
+    Route::put('membres/{member}', [AdminMemberController::class, 'update'])->name('members.update');
+    Route::delete('membres/{member}', [AdminMemberController::class, 'destroy'])->name('members.destroy');
+});
