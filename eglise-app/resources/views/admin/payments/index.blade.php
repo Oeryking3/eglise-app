@@ -13,14 +13,7 @@
         <br>{{ $payment->created_at->format('d/m/Y H:i') }} · Réf: {{ $payment->reference }}
       </div>
 
-      <form method="POST" action="{{ route('admin.payments.updateStatus', $payment) }}" style="margin-top:10px; display:flex; gap:8px; align-items:center;">
-        @csrf @method('PUT')
-        <select name="statut" onchange="this.form.submit()" style="border:1px solid #f0e2d8; border-radius:10px; padding:6px 10px; font-family:Arial, sans-serif; font-size:12px;">
-          <option value="en_attente" {{ $payment->statut === 'en_attente' ? 'selected' : '' }}>En attente</option>
-          <option value="reussi" {{ $payment->statut === 'reussi' ? 'selected' : '' }}>Réussi</option>
-          <option value="echoue" {{ $payment->statut === 'echoue' ? 'selected' : '' }}>Échoué</option>
-        </select>
-      </form>
+      <span class="badge success" style="margin-top:10px; display:inline-block;">Réussi</span>
 
       <div class="row-actions">
         <form method="POST" action="{{ route('admin.payments.destroy', $payment) }}" onsubmit="return confirm('Supprimer ce paiement ?');">

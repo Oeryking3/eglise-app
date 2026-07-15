@@ -1,47 +1,39 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
-class PaymentController extends Controller
+class AdminPaymentController extends Controller
 {
-    public function show()
+    public function index()
     {
-        return view('payment');
+        $payments = Payment::with('user')
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.payments.index', compact('payments'));
     }
 
-    public function process(Request $request)
+    public function updateStatus(Request $request, Payment $payment)
     {
         $data = $request->validate([
-            'methode'   => ['required', 'in:wave,orange,mtn,moov,card'],
-            'telephone' => ['required_unless:methode,card', 'nullable', 'string'],
+            'statut' => ['required', 'in:en_attente,reussi,echoue'],
         ]);
 
-        $payment = Payment::create([
-            'user_id'   => auth()->id(),
-            'produit'   => 'Comment créer un miracle',
-            'montant'   => 2000,
-            'methode'   => $data['methode'],
-            'telephone' => $data['telephone'] ?? null,
-            'statut'    => 'en_attente',
-            'reference' => 'PAY-' . strtoupper(Str::random(10)),
-        ]);
+        $payment->update(['statut' => $data['statut']]);
 
-        $payment->update(['statut' => 'reussi']);
-
-        session(['last_payment_reference' => $payment->reference]);
-
-        return redirect()->route('download');
+        return redirect()->route('admin.payments.index')
+            ->with('success', 'Statut mis à jour.');
     }
 
-    public function download()
+    public function destroy(Payment $payment)
     {
-        $reference = session('last_payment_reference');
-        $payment = Payment::where('reference', $reference)->first();
+        $payment->delete();
 
-        return view('download', compact('payment'));
+        return redirect()->route('admin.payments.index')
+            ->with('success', 'Le paiement a été supprimé.');
     }
 }

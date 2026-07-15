@@ -1,15 +1,16 @@
-*{box-sizing:border-box; margin:0; padding:0;}
-html,body{min-height:100%;}
+html,body{min-height:100%; overflow-x:hidden;}
 body{
   font-family:'Georgia','Times New Roman',serif;
   background:#111;
   display:flex;
   justify-content:center;
+  align-items:flex-start;
 }
 .device{
   max-width:430px;
   width:100%;
   min-height:100vh;
+  height:auto;
   position:relative;
   background:linear-gradient(180deg, #FBEFD9 0%, #F7DFAF 22%, #F3B36B 50%, #EE7C3E 72%, #E8502B 100%);
   display:flex;
@@ -756,6 +757,7 @@ body{
   flex-direction:column;
   align-items:stretch;
   justify-content:flex-start;
+  min-height:100vh;
   padding:0;
 }
 .admin header{
@@ -841,6 +843,7 @@ body{
 .admin .badge.success{ background:#E6F7EA; color:#166534; }
 .admin .badge.pending{ background:#FEF3E2; color:#92400e; }
 .admin .badge.failed{ background:#FDE8E8; color:#991b1b; }
+.admin .badge.important{ background:#FFF0D6; color:#92400e; }
 
 .admin .alert-ok{
   background:#E6F7EA; color:#166534; border:1px solid #b9e6c4;
@@ -885,3 +888,355 @@ nav.admin-tabbar a{
 }
 nav.admin-tabbar a.active{ color:#F0602E; }
 nav.admin-tabbar a .ic{ font-size:16px; }
+
+/* =========================================================
+   AJOUTS — Pages Événements (index / create / edit)
+   ========================================================= */
+
+.admin .page-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:20px;
+}
+.admin .page-header h1{
+  color:#F0602E;
+  font-family:Arial, sans-serif;
+  font-weight:800;
+  font-size:19px;
+}
+.admin .page-header p{
+  color:#888;
+  font-family:Arial, sans-serif;
+  font-size:12px;
+  margin-top:4px;
+}
+
+.admin .btn{
+  display:inline-block;
+  text-decoration:none;
+  font-family:Arial, sans-serif;
+  font-weight:700;
+  font-size:12px;
+  padding:10px 16px;
+  border-radius:12px;
+  cursor:pointer;
+  border:none;
+  white-space:nowrap;
+}
+.admin .btn-sm{
+  padding:8px 14px;
+  font-size:11.5px;
+}
+.admin .btn-outline{
+  background:#fff;
+  color:#F0602E;
+  border:1.5px solid #F0602E;
+}
+.admin .btn-primary{
+  background:linear-gradient(135deg, #F0602E, #E1481F);
+  color:#fff;
+  box-shadow:0 6px 14px rgba(225,72,31,.3);
+}
+.admin .btn-danger{
+  background:#FDE8E8;
+  color:#991b1b;
+}
+
+.admin .card{
+  background:#fff;
+  border:1px solid #f0e2d8;
+  border-radius:16px;
+  padding:22px 18px;
+  box-shadow:0 4px 14px rgba(0,0,0,.05);
+}
+
+.admin .form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:12px;
+}
+@media(max-width:420px){
+  .admin .form-row{ grid-template-columns:1fr; }
+}
+
+.admin .form-check{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#FFF3ED;
+  border:1px solid #f5d5c4;
+  border-radius:12px;
+  padding:12px 14px;
+  margin-bottom:20px;
+}
+.admin .form-check input{ width:18px; height:18px; accent-color:#F0602E; }
+.admin .form-check label{
+  font-family:Arial, sans-serif;
+  font-size:13px;
+  font-weight:700;
+  color:#B5121B;
+}
+
+.admin .img-preview{
+  width:100%;
+  height:130px;
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:10px;
+  border:1px solid #f0e2d8;
+}
+.admin .img-preview img{
+  width:100%; height:100%; object-fit:cover;
+}
+
+.admin .events-grid{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.admin .event-card{
+  background:#fff;
+  border:1px solid #f0e2d8;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 4px 14px rgba(0,0,0,.05);
+}
+.admin .event-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+.admin .event-top h2{
+  font-family:Arial, sans-serif;
+  font-size:15px;
+  color:#111;
+}
+.admin .event-top .meta{
+  font-family:Arial, sans-serif;
+  font-size:11px;
+  color:#999;
+  margin-top:4px;
+}
+.admin .event-card p{
+  font-family:Arial, sans-serif;
+  font-size:12px;
+  color:#666;
+  line-height:1.5;
+  margin:10px 0;
+}
+.admin .event-card .actions{
+  display:flex;
+  gap:14px;
+  margin-top:10px;
+  border-top:1px solid #f5eee8;
+  padding-top:10px;
+}
+.admin .event-card .actions form{ margin:0; }
+
+.admin .empty-state{
+  text-align:center;
+  color:#aaa;
+  font-family:Arial, sans-serif;
+  font-size:13px;
+  padding:40px 0;
+}
+.admin .pagination-wrap{
+  margin-top:20px;
+  font-family:Arial, sans-serif;
+  font-size:12px;
+}
+
+/* ---------- Carrousel Évènements à venir ---------- */
+.events-carousel{
+  overflow:hidden;
+  margin:0 -6% 20px;
+  padding:0 6%;
+}
+.events-carousel-track{
+  display:flex;
+  gap:14px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+  padding-bottom:4px;
+}
+.events-carousel-track::-webkit-scrollbar{ display:none; }
+
+.event-carousel-card{
+  position:relative;
+  flex:0 0 82%;
+  height:190px;
+  border-radius:16px;
+  overflow:hidden;
+  scroll-snap-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+.event-carousel-card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.event-carousel-card .ov{
+  position:absolute; inset:0;
+  background:linear-gradient(0deg, rgba(0,0,0,.75), transparent 65%);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:16px;
+  color:#fff;
+  font-family:Arial, sans-serif;
+}
+.event-carousel-card .ov .t{ font-weight:800; font-size:16px; }
+.event-carousel-card .ov .s{ font-size:12px; opacity:.9; margin-top:6px; }
+.event-carousel-card.empty{
+  background:#f5f5f5;
+  flex:0 0 100%;
+}
+
+.see-all-events-btn{
+  display:block;
+  text-align:center;
+  text-decoration:none;
+  border:1.5px solid #F0602E;
+  color:#F0602E;
+  font-family:Arial, sans-serif;
+  font-weight:700;
+  font-size:13px;
+  padding:12px;
+  border-radius:14px;
+  margin:0 0 30px;
+}
+/* ---------- Page publique : Tous les événements ---------- */
+.public-events-list{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.public-event-card{
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  border:1px solid #f3e6dc;
+}
+
+.public-event-img{
+  position:relative;
+  width:100%;
+  height:170px;
+}
+.public-event-img img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.public-event-badge{
+  position:absolute;
+  top:12px;
+  right:12px;
+  background:#F0602E;
+  color:#fff;
+  font-family:Arial, sans-serif;
+  font-weight:800;
+  font-size:10.5px;
+  letter-spacing:.3px;
+  padding:5px 12px;
+  border-radius:20px;
+  box-shadow:0 4px 10px rgba(225,72,31,.4);
+}
+
+.public-event-body{
+  padding:16px 18px 18px;
+}
+.public-event-body h2{
+  font-family:Arial, sans-serif;
+  font-size:16px;
+  font-weight:800;
+  color:#1a1a1a;
+  margin-bottom:8px;
+}
+
+.public-event-meta{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-family:Arial, sans-serif;
+  font-size:12px;
+  color:#F0602E;
+  font-weight:700;
+  margin-bottom:10px;
+}
+.public-event-meta svg{ flex-shrink:0; }
+.public-event-meta .dot{ color:#ddd; margin:0 2px; }
+
+.public-event-body p{
+  font-family:Arial, sans-serif;
+  font-size:13px;
+  color:#777;
+  line-height:1.55;
+}
+
+/* ---------- Direct intégré ---------- */
+.live-embed{
+  position:relative;
+  width:100%;
+  border-radius:18px;
+  overflow:hidden;
+  margin-bottom:26px;
+  box-shadow:0 8px 20px rgba(0,0,0,.15);
+  aspect-ratio:16/9;
+}
+.live-embed iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+}
+
+/* ---------- Carte de membre ---------- */
+.member-card-visual{
+  background:linear-gradient(135deg, #F0602E, #B5121B);
+  border-radius:20px;
+  padding:26px 22px;
+  color:#fff;
+  box-shadow:0 12px 26px rgba(225,72,31,.35);
+}
+.member-card-visual.inactive{
+  background:linear-gradient(135deg, #999, #666);
+  box-shadow:0 12px 26px rgba(0,0,0,.15);
+}
+.member-card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-family:Arial, sans-serif;
+  font-size:12px;
+  font-weight:700;
+  opacity:.9;
+}
+.member-card-badge{
+  background:rgba(255,255,255,.25);
+  padding:3px 10px;
+  border-radius:20px;
+  font-size:10px;
+}
+.member-card-name{
+  font-family:Arial, sans-serif;
+  font-size:20px;
+  font-weight:800;
+  margin-top:30px;
+}
+.member-card-status{
+  font-family:Arial, sans-serif;
+  font-size:12px;
+  margin-top:8px;
+  opacity:.85;
+}

@@ -20,8 +20,8 @@
       </div>
     </div>
   @empty
-    <p style="font-family:Arial, sans-serif; color:#999; font-size:13px;">Aucune notification.</p>
+    <div class="empty-state">Aucune notification.</div>
   @endforelse
 
-  <div style="margin-top:16px;">{{ $notifications->links() }}</div>
+  <div class="pagination-wrap">{{ $notifications->links() }}</div>
 @endsection

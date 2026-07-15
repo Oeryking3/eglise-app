@@ -3,56 +3,58 @@
 @section('title', 'Créer un événement')
 
 @section('content')
-  <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="page-header">
     <div>
-      <h1 class="h4 mb-1">Ajouter un événement</h1>
-      <p class="text-muted">Crée un événement et choisis s’il doit être important.</p>
+        <h1>Ajouter un événement</h1>
+        <p>Crée un événement et choisis s'il doit être mis en avant.</p>
     </div>
-    <a href="{{ route('admin.events.index') }}" class="btn btn-outline-secondary">Retour</a>
-  </div>
+    <a href="{{ route('admin.events.index') }}" class="btn btn-outline">Retour</a>
+</div>
 
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form method="POST" action="{{ route('admin.events.store') }}" enctype="multipart/form-data">
+@if ($errors->has('important'))
+    <div class="alert-error" style="margin-bottom:16px;">{{ $errors->first('important') }}</div>
+@endif
+
+<div class="card">
+    <form method="POST" action="{{ route('admin.events.store') }}" enctype="multipart/form-data">
         @csrf
 
-        <div class="mb-3">
-          <label class="form-label">Titre</label>
-          <input type="text" name="titre" value="{{ old('titre') }}" class="form-control" required>
+        <div class="form-group">
+            <label>Titre</label>
+            <input type="text" name="titre" value="{{ old('titre') }}" required>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label">Description</label>
-          <textarea name="description" class="form-control" rows="4">{{ old('description') }}</textarea>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description">{{ old('description') }}</textarea>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label">Image</label>
-          <input type="file" name="image" class="form-control">
+        <div class="form-group">
+            <label>Image</label>
+            <input type="file" name="image" accept="image/*">
         </div>
 
-        <div class="row g-3 mb-3">
-          <div class="col-md-4">
-            <label class="form-label">Date de l'événement</label>
-            <input type="date" name="date_evenement" value="{{ old('date_evenement') }}" class="form-control" required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Heure de début</label>
-            <input type="text" name="heure_debut" value="{{ old('heure_debut') }}" class="form-control">
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Heure de fin</label>
-            <input type="text" name="heure_fin" value="{{ old('heure_fin') }}" class="form-control">
-          </div>
+        <div class="form-row">
+            <div class="form-group">
+               <label>Date de l'événement</label>
+               <input type="date" name="date_evenement" value="{{ old('date_evenement') }}" min="{{ now()->format('Y-m-d') }}" required>
+            </div>
+            <div class="form-group">
+                <label>Heure de début</label>
+                <input type="time" name="heure_debut" value="{{ old('heure_debut') }}">
+            </div>
+            <div class="form-group">
+                <label>Heure de fin</label>
+                <input type="time" name="heure_fin" value="{{ old('heure_fin') }}">
+            </div>
         </div>
 
-        <div class="form-check mb-4">
-          <input class="form-check-input" type="checkbox" name="important" id="important" value="1" {{ old('important') ? 'checked' : '' }}>
-          <label class="form-check-label" for="important">Marquer comme événement important</label>
+        <div class="form-check">
+            <input type="checkbox" name="important" id="important" value="1" {{ old('important') ? 'checked' : '' }}>
+            <label for="important">Marquer comme événement à venir (3 maximum)</label>
         </div>
 
-        <button type="submit" class="btn btn-primary">Publier l'événement</button>
-      </form>
-    </div>
-  </div>
+        <button type="submit" class="submit-btn">Publier l'événement</button>
+    </form>
+</div>
 @endsection

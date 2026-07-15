@@ -9,16 +9,17 @@
 <body>
 <div class="device download">
 
-  <div class="check">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#2ecc40" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="4 13 9 18 20 6"/>
-    </svg>
-  </div>
+  <div class="check">✅</div>
+  <h1>Paiement confirmé !</h1>
+  <p>Merci pour ton paiement. Télécharge ton/tes guide(s) ci-dessous.</p>
 
-  <h1>Paiement réussi</h1>
-  <p>Merci pour ton soutien. Ton guide "Comment créer un miracle" est prêt.</p>
-
-  <a class="dl-btn" href="{{ asset('files/comment-creer-un-miracle.pdf') }}" download>Télécharger le PDF</a>
+  @forelse ($livres as $livre)
+    <a href="{{ asset('storage/' . $livre->fichier) }}" class="dl-btn" download target="_blank">
+      Télécharger : {{ $livre->titre }}
+    </a>
+  @empty
+    <p>Aucun livre disponible pour le moment.</p>
+  @endforelse
 
 </div>
 </body>

@@ -7,7 +7,8 @@
 
   @forelse ($members as $member)
     <div class="list-card">
-      <div class="t">{{ $member->prenom }} {{ $member->nom }}
+      <div class="t">
+        {{ $member->prenom }} {{ $member->nom }}
         @if ($member->role === 'admin')
           <span class="badge success" style="margin-left:6px;">Admin</span>
         @endif
@@ -27,8 +28,8 @@
       </div>
     </div>
   @empty
-    <p style="font-family:Arial, sans-serif; color:#999; font-size:13px;">Aucun membre.</p>
+    <div class="empty-state">Aucun membre.</div>
   @endforelse
 
-  <div style="margin-top:16px;">{{ $members->links() }}</div>
+  <div class="pagination-wrap">{{ $members->links() }}</div>
 @endsection

@@ -26,60 +26,71 @@
       @csrf
     </form>
   </header>
-
+  @if ($agendaReminders->isNotEmpty())
+      <div style="padding:0 6%; margin-top:16px;">
+        @foreach ($agendaReminders as $reminder)
+          <div class="alert-ok" style="background:#FFF3ED; border-color:#f5d5c4; color:#B5121B;">
+            <strong>Rappel :</strong> {{ $reminder->titre }}
+            @if ($reminder->description)
+              — {{ $reminder->description }}
+            @endif
+          </div>
+        @endforeach
+      </div>
+    @endif
   <div class="hero-card">
     <img src="{{ asset('img/hero.png') }}" alt="Église Ambassade des Miracles">
   </div>
 
   <main class="content">
 
-    <div class="section-h">Évènements importants</div>
-    <div class="important-events-grid">
-      @forelse ($importantEvents as $event)
-        <div class="important-event-card">
-          <img src="{{ $event->image_url }}" alt="{{ $event->titre }}">
-          <div class="info">
-            <div class="label">Important</div>
-            <h2>{{ $event->titre }}</h2>
-            <p>{{ \Illuminate\Support\Str::limit($event->description, 100) }}</p>
-            <div class="meta">
-              <span>{{ $event->date_evenement->format('d/m/Y') }}</span>
-              @if ($event->heure_debut)
-                <span>{{ $event->heure_debut }}@if($event->heure_fin) - {{ $event->heure_fin }}@endif</span>
-              @endif
+    <div class="section-h">Évènements à venir</div>
+
+    <div class="events-carousel">
+      <div class="events-carousel-track" id="eventsCarouselTrack">
+        @forelse ($upcomingEvents as $event)
+          <div class="event-carousel-card">
+            <img src="{{ $event->image_url }}" alt="{{ $event->titre }}">
+            <div class="ov">
+              <div class="t">{{ $event->titre }}</div>
+              <div class="s">
+                {{ $event->date_evenement->format('d/m/Y') }}
+                @if ($event->heure_debut)
+                  · {{ $event->heure_debut }}
+                @endif
+              </div>
             </div>
           </div>
-        </div>
-      @empty
-        <div class="important-event-card empty">
-          <div class="info">
-            <h2>Aucun événement important</h2>
-            <p>Les événements importants apparaîtront ici dès qu’ils seront ajoutés.</p>
+        @empty
+          <div class="event-carousel-card empty">
+            <div class="ov" style="position:static; background:none; align-items:center; justify-content:center; height:100%;">
+              <div class="t" style="color:#999;">Aucun événement à venir</div>
+            </div>
           </div>
-        </div>
-      @endforelse
+        @endforelse
+      </div>
     </div>
 
-    <div class="section-h">Évènements à venir</div>
-    <div class="events-scroll">
-      @forelse ($events as $event)
-        <div class="event-tile">
-          <img src="{{ $event->image_url }}" alt="{{ $event->titre }}">
-          <div class="ov">
-            <div class="t">{{ $event->titre }}</div>
-            <div class="s">
-              @if ($event->heure_debut && $event->heure_fin)
-                {{ $event->heure_debut }} - {{ $event->heure_fin }}
-              @else
-                {{ $event->heure_debut }}
-              @endif
-            </div>
-          </div>
+    <a href="{{ route('events.index') }}" class="see-all-events-btn">Voir tous les événements</a>
+
+   @if ($liveStream->actif && $liveStream->embed_url)
+      <div class="section-h">En direct</div>
+      <div class="live-embed">
+        <iframe
+          src="{{ $liveStream->embed_url }}"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+    @elseif ($liveStream->actif && $liveStream->url)
+      <div class="section-h">En direct</div>
+      <a href="{{ $liveStream->url }}" target="_blank" rel="noopener" class="live-box" style="text-decoration:none;">
+        <div class="play-btn">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
         </div>
-      @empty
-        <p style="font-family:Arial, sans-serif; color:#999; font-size:13px;">Aucun événement pour le moment.</p>
-      @endforelse
-    </div>
+      </a>
+    @endif
 
     <div class="section-h">Notifications</div>
     <div class="notif-wrap">
@@ -96,15 +107,38 @@
           <p style="font-family:Arial, sans-serif; color:#999; font-size:13px;">Aucune notification.</p>
         @endforelse
       </div>
-      <div class="notif-side">
+      <!-- <div class="notif-side">
         <img src="{{ asset('img/candle.png') }}" alt="Bougie">
-      </div>
+      </div> -->
     </div>
 
     <button type="button" class="cta-miracle" onclick="window.location.href='{{ route('payment') }}';">Comment créer un miracle</button>
 
+    <a href="{{ route('agenda.index') }}" class="see-all-events-btn" style="margin-top:14px;">Mon agenda</a>
+    <a href="{{ route('card.show') }}" class="see-all-events-btn" style="margin-top:14px;">Ma carte de membre</a>
+
   </main>
 
 </div>
+
+<script>
+  (function () {
+    const track = document.getElementById('eventsCarouselTrack');
+    if (!track || track.children.length <= 1) return;
+
+    let index = 0;
+    const totalCards = track.children.length;
+
+    setInterval(() => {
+      index = (index + 1) % totalCards;
+      const card = track.children[index];
+      track.scrollTo({
+        left: card.offsetLeft - 20,
+        behavior: 'smooth'
+      });
+    }, 3500);
+  })();
+</script>
+
 </body>
 </html>

@@ -18,7 +18,7 @@
 <script>
   setTimeout(function () {
     window.location.href = "{{ route('accueil') }}";
-  }, 3000);
+  }, 1000);
 </script>
 
 </body>

@@ -18,7 +18,7 @@
 <script>
   setTimeout(function () {
     window.location.href = "{{ route('confirm') }}";
-  }, 5000);
+  }, 1000);
 </script>
 
 </body>

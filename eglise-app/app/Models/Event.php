@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Models;
 
@@ -18,11 +18,13 @@ class Event extends Model
 
     protected $casts = [
         'date_evenement' => 'date',
-        'important'     => 'boolean',
+        'important' => 'boolean',
     ];
 
     public function getImageUrlAttribute(): string
     {
-        return $this->image ? asset('storage/' . $this->image) : asset('img/hero.png');
+        return $this->image
+            ? asset('storage/' . $this->image)
+            : asset('img/hero.png');
     }
 }

@@ -4,62 +4,61 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>@yield('title', 'Administration') - Église Ambassade des Miracles</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUa6ljX6H6q3KDjY9Y2w0FcvA3F6v7d4f8HulBlA57Gk5Q3JyJI8Z4Q5FtwK" crossorigin="anonymous">
 <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
-<body class="bg-light">
-<div class="container-fluid min-vh-100">
-  <div class="row">
-    <aside class="col-md-3 col-xl-2 bg-white border-end p-4">
-      <div class="mb-4">
-        <h2 class="h5">Espace Admin</h2>
-        <p class="text-muted mb-0">Connecté en tant que <strong>{{ auth()->user()->prenom }}</strong></p>
-      </div>
+<body>
+<div class="device admin">
 
-      <nav class="nav nav-pills flex-column gap-2">
-        <a class="nav-link d-flex align-items-center justify-content-between {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-          <span>Accueil</span>
-          <span class="badge bg-light text-dark">🏠</span>
-        </a>
-        <a class="nav-link d-flex align-items-center justify-content-between {{ request()->routeIs('admin.events.*') ? 'active' : '' }}" href="{{ route('admin.events.index') }}">
-          <span>Événements</span>
-          <span class="badge bg-light text-dark">📅</span>
-        </a>
-        <a class="nav-link d-flex align-items-center justify-content-between {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}" href="{{ route('admin.notifications.index') }}">
-          <span>Notifications</span>
-          <span class="badge bg-light text-dark">🔔</span>
-        </a>
-        <a class="nav-link d-flex align-items-center justify-content-between {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}" href="{{ route('admin.payments.index') }}">
-          <span>Paiements</span>
-          <span class="badge bg-light text-dark">💳</span>
-        </a>
-        <a class="nav-link d-flex align-items-center justify-content-between {{ request()->routeIs('admin.members.*') ? 'active' : '' }}" href="{{ route('admin.members.index') }}">
-          <span>Membres</span>
-          <span class="badge bg-light text-dark">👥</span>
-        </a>
-        <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-          <span>Déconnexion</span>
-          <span class="badge bg-danger text-white">🚪</span>
-        </a>
-      </nav>
+  <header>
+    <h1>Espace Admin</h1>
+    <div class="sub">Connecté en tant que {{ auth()->user()->prenom }}</div>
+  </header>
 
-      <form id="logout-form" method="POST" action="{{ route('logout') }}" class="d-none">
-        @csrf
-      </form>
-    </aside>
+  <main class="content">
+    @if (session('success'))
+      <div class="alert-ok">{{ session('success') }}</div>
+    @endif
 
-    <main class="col-md-9 col-xl-10 py-4 px-4">
-      @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-          {{ session('success') }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      @endif
+    @if ($errors->any())
+      <div class="alert-error">{{ $errors->first() }}</div>
+    @endif
 
-      @yield('content')
-    </main>
-  </div>
+    @yield('content')
+  </main>
+
+  <nav class="admin-tabbar">
+    <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+      <span class="ic">🏠</span>Accueil
+    </a>
+    <a href="{{ route('admin.events.index') }}" class="{{ request()->routeIs('admin.events.*') ? 'active' : '' }}">
+      <span class="ic">📅</span>Évén.
+    </a>
+    <a href="{{ route('admin.notifications.index') }}" class="{{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
+      <span class="ic">🔔</span>Notifs
+    </a>
+    <a href="{{ route('admin.payments.index') }}" class="{{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+      <span class="ic">💳</span>Paiem.
+    </a>
+    <a href="{{ route('admin.members.index') }}" class="{{ request()->routeIs('admin.members.*') ? 'active' : '' }}">
+      <span class="ic">👥</span>Membres
+    </a>
+    <a href="{{ route('admin.livres.index') }}" class="{{ request()->routeIs('admin.livres.*') ? 'active' : '' }}">
+      <span class="ic">📚</span>Livres
+    </a>
+    <a href="{{ route('admin.direct.edit') }}" class="{{ request()->routeIs('admin.direct.*') ? 'active' : '' }}">
+      <span class="ic">📡</span>Direct
+    </a>
+    <a href="{{ route('admin.avantages.index') }}" class="{{ request()->routeIs('admin.avantages.*') ? 'active' : '' }}">
+      <span class="ic">🎫</span>Avantages
+    </a>
+    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+      <span class="ic">🚪</span>Sortir
+    </a>
+  </nav>
+  <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display:none;">
+    @csrf
+  </form>
+
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-HoA0x4otLHS4F3zyiMxL4jDx7FAGx8jHoh1J1tJyQpOIz3URPwU7f3R52ZLTO5F4" crossorigin="anonymous"></script>
 </body>
 </html>
