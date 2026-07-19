@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\LiveStreamController;
 use App\Http\Controllers\Admin\CardBenefitController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\Admin\MembershipCardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -101,4 +102,13 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
 
     Route::get('direct', [LiveStreamController::class, 'edit'])->name('direct.edit');
     Route::put('direct', [LiveStreamController::class, 'update'])->name('direct.update');
+
+    
+
+Route::prefix('cartes')->name('cartes.')->group(function () {
+    Route::get('/', [MembershipCardController::class, 'index'])->name('index');
+    Route::get('/{member}/modifier', [MembershipCardController::class, 'edit'])->name('edit');
+    Route::put('/{member}', [MembershipCardController::class, 'update'])->name('update');
+    Route::delete('/{member}', [MembershipCardController::class, 'destroy'])->name('destroy');
+});
 });

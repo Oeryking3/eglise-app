@@ -1,4 +1,16 @@
-html,body{min-height:100%; overflow-x:hidden;}
+/* =========================================================
+   BASE / RESET
+   ========================================================= */
+*, *::before, *::after{
+  box-sizing:border-box;
+}
+
+html, body{
+  min-height:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
+
 body{
   font-family:'Georgia','Times New Roman',serif;
   background:#111;
@@ -6,11 +18,31 @@ body{
   justify-content:center;
   align-items:flex-start;
 }
+
+img{
+  max-width:100%;
+  height:auto;
+  display:block;
+}
+
+input, textarea, select, button{
+  max-width:100%;
+  font-size:16px; /* évite le zoom automatique iOS sur focus */
+}
+
+table{
+  max-width:100%;
+  display:block;
+  overflow-x:auto;
+}
+
 .device{
   max-width:430px;
   width:100%;
   min-height:100vh;
   height:auto;
+  overflow-x:hidden;
+  margin:0 auto;
   position:relative;
   background:linear-gradient(180deg, #FBEFD9 0%, #F7DFAF 22%, #F3B36B 50%, #EE7C3E 72%, #E8502B 100%);
   display:flex;
@@ -24,7 +56,10 @@ body{
   filter:drop-shadow(0 8px 16px rgba(139,0,0,.3));
 }
 
-/* ---------- Page d'accueil (home.html) ---------- */
+
+/* =========================================================
+   PAGE D'ACCUEIL (home.html)
+   ========================================================= */
 .device.home{
   flex-direction:column;
   justify-content:flex-start;
@@ -97,7 +132,10 @@ body{
   box-shadow:0 6px 16px rgba(0,0,0,.15);
 }
 
-/* ---------- Page de connexion (login.html) ---------- */
+
+/* =========================================================
+   PAGE DE CONNEXION (login.html)
+   ========================================================= */
 .device.login{
   flex-direction:column;
   justify-content:flex-start;
@@ -211,7 +249,10 @@ body{
   opacity:.9;
 }
 
-/* ---------- Page inscription (signup.html) ---------- */
+
+/* =========================================================
+   PAGE INSCRIPTION (signup.html)
+   ========================================================= */
 .device.signup{
   background:#ffffff;
   flex-direction:column;
@@ -298,7 +339,10 @@ body{
   stroke-linejoin:round;
 }
 
-/* ---------- Page de chargement (saving.html) ---------- */
+
+/* =========================================================
+   PAGE DE CHARGEMENT (saving.html)
+   ========================================================= */
 .device.saving{
   background:#ffffff;
   flex-direction:column;
@@ -320,7 +364,10 @@ body{
   height:auto;
 }
 
-/* ---------- Page confirmation (confirm.html) ---------- */
+
+/* =========================================================
+   PAGE CONFIRMATION (confirm.html)
+   ========================================================= */
 .device.confirm{
   flex-direction:column;
   align-items:center;
@@ -342,7 +389,10 @@ body{
   height:auto;
 }
 
-/* ---------- Dashboard (dashboard.html) ---------- */
+
+/* =========================================================
+   DASHBOARD (dashboard.html)
+   ========================================================= */
 .device.dashboard{
   background:#fff;
   flex-direction:column;
@@ -512,7 +562,6 @@ body{
 }
 .notif-side img{ width:100%; max-width:100%; height:100%; object-fit:cover; }
 
-/* ---------- Section En direct ---------- */
 .live-box{
   background:#E3E3E3;
   border-radius:18px;
@@ -539,7 +588,6 @@ body{
   margin-left:3px;
 }
 
-/* ---------- Bouton Comment créer un miracle ---------- */
 .cta-miracle{
   display:block;
   width:100%;
@@ -556,7 +604,10 @@ body{
   box-shadow:0 10px 22px rgba(225,72,31,.35);
 }
 
-/* ---------- Page paiement (payment.html) ---------- */
+
+/* =========================================================
+   PAGE PAIEMENT (payment.html)
+   ========================================================= */
 .device.payment{
   background:#ffffff;
   flex-direction:column;
@@ -632,54 +683,6 @@ body{
   box-shadow:0 10px 22px rgba(225,72,31,.35);
 }
 
-/* ---------- Page téléchargement (download.html) ---------- */
-.device.download{
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:0 10%;
-  gap:20px;
-  text-align:center;
-}
-.download .check{
-  width:80px; height:80px;
-  border-radius:50%;
-  background:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 10px 24px rgba(0,0,0,.15);
-}
-.download .check svg{ width:38px; height:38px; }
-.download h1{
-  font-family:Arial, sans-serif;
-  color:#fff;
-  font-size:20px;
-  font-weight:800;
-  text-shadow:0 2px 6px rgba(0,0,0,.12);
-}
-.download p{
-  font-family:Arial, sans-serif;
-  color:#fff;
-  font-size:13px;
-  line-height:1.5;
-  opacity:.95;
-}
-.download a.dl-btn{
-  margin-top:10px;
-  display:inline-block;
-  background:#fff;
-  color:#B5121B;
-  text-decoration:none;
-  font-family:Arial, sans-serif;
-  font-weight:800;
-  font-size:15px;
-  padding:16px 30px;
-  border-radius:14px;
-  box-shadow:0 8px 18px rgba(0,0,0,.15);
-}
-
-/* ---------- Sélecteur de mode de paiement ---------- */
 .payment .methods{
   padding:26px 8% 0;
 }
@@ -751,9 +754,63 @@ body{
   gap:16px;
 }
 
-/* ---------- Espace admin (format app mobile) ---------- */
+
+/* =========================================================
+   PAGE TÉLÉCHARGEMENT (download.html)
+   ========================================================= */
+.device.download{
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:0 10%;
+  gap:20px;
+  text-align:center;
+}
+.download .check{
+  width:80px; height:80px;
+  border-radius:50%;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 10px 24px rgba(0,0,0,.15);
+}
+.download .check svg{ width:38px; height:38px; }
+.download h1{
+  font-family:Arial, sans-serif;
+  color:#fff;
+  font-size:20px;
+  font-weight:800;
+  text-shadow:0 2px 6px rgba(0,0,0,.12);
+}
+.download p{
+  font-family:Arial, sans-serif;
+  color:#fff;
+  font-size:13px;
+  line-height:1.5;
+  opacity:.95;
+}
+.download a.dl-btn{
+  margin-top:10px;
+  display:inline-block;
+  background:#fff;
+  color:#B5121B;
+  text-decoration:none;
+  font-family:Arial, sans-serif;
+  font-weight:800;
+  font-size:15px;
+  padding:16px 30px;
+  border-radius:14px;
+  box-shadow:0 8px 18px rgba(0,0,0,.15);
+}
+
+
+/* =========================================================
+   ESPACE ADMIN (format app mobile)
+   ========================================================= */
 .device.admin{
   background:#fff;
+  display:flex;
   flex-direction:column;
   align-items:stretch;
   justify-content:flex-start;
@@ -779,7 +836,7 @@ body{
 
 .admin main.content{
   flex:1;
-  padding:24px 6% 100px;
+  padding:24px 6% 30px;
 }
 
 .admin .page-title{
@@ -849,6 +906,13 @@ body{
   background:#E6F7EA; color:#166534; border:1px solid #b9e6c4;
   padding:12px 14px; border-radius:12px; margin-bottom:18px;
   font-family:Arial, sans-serif; font-size:13px;
+  word-break:break-word;
+}
+.admin .alert-error{
+  background:#FDE8E8; color:#991b1b; border:1px solid #f5b8b8;
+  padding:12px 14px; border-radius:12px; margin-bottom:18px;
+  font-family:Arial, sans-serif; font-size:13px;
+  word-break:break-word;
 }
 
 .admin .form-group{ margin-bottom:16px; }
@@ -869,16 +933,17 @@ body{
 
 /* Barre de navigation basse admin */
 nav.admin-tabbar{
-  position:fixed;
-  bottom:0; left:50%;
-  transform:translateX(-50%);
+  position:sticky;
+  bottom:0;
   width:100%;
-  max-width:430px;
+  flex-shrink:0;
+  margin-top:auto;
   background:#fff;
   border-top:1px solid #eee;
   display:flex;
   padding:10px 4px 14px;
   box-shadow:0 -4px 14px rgba(0,0,0,.06);
+  z-index:10;
 }
 nav.admin-tabbar a{
   flex:1;
@@ -889,10 +954,10 @@ nav.admin-tabbar a{
 nav.admin-tabbar a.active{ color:#F0602E; }
 nav.admin-tabbar a .ic{ font-size:16px; }
 
-/* =========================================================
-   AJOUTS — Pages Événements (index / create / edit)
-   ========================================================= */
 
+/* =========================================================
+   PAGES ÉVÉNEMENTS ADMIN (index / create / edit)
+   ========================================================= */
 .admin .page-header{
   display:flex;
   justify-content:space-between;
@@ -986,9 +1051,14 @@ nav.admin-tabbar a .ic{ font-size:16px; }
   overflow:hidden;
   margin-bottom:10px;
   border:1px solid #f0e2d8;
+  background:#f5f5f5;
 }
 .admin .img-preview img{
-  width:100%; height:100%; object-fit:cover;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  display:block;
 }
 
 .admin .events-grid{
@@ -1049,7 +1119,70 @@ nav.admin-tabbar a .ic{ font-size:16px; }
   font-size:12px;
 }
 
-/* ---------- Carrousel Évènements à venir ---------- */
+
+/* =========================================================
+   MENU "PLUS" — ADMIN
+   ========================================================= */
+.admin-more-menu{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:50;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+}
+.admin-more-menu.open{
+  display:flex;
+}
+.admin-more-sheet{
+  width:100%;
+  max-width:430px;
+  background:#fff;
+  border-radius:22px 22px 0 0;
+  padding:20px 6% 30px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  box-shadow:0 -8px 24px rgba(0,0,0,.15);
+}
+.admin-more-sheet a{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 8px;
+  text-decoration:none;
+  color:#333;
+  font-family:Arial, sans-serif;
+  font-weight:700;
+  font-size:14px;
+  border-bottom:1px solid #f5eee8;
+}
+.admin-more-sheet a:last-of-type{
+  border-bottom:none;
+}
+.admin-more-sheet a .ic{
+  font-size:18px;
+  width:24px;
+  text-align:center;
+}
+.admin-more-close{
+  margin-top:14px;
+  width:100%;
+  border:none;
+  background:#f5f5f5;
+  color:#666;
+  font-family:Arial, sans-serif;
+  font-weight:700;
+  font-size:13px;
+  padding:14px;
+  border-radius:14px;
+}
+
+
+/* =========================================================
+   CARROUSEL ÉVÈNEMENTS À VENIR (accueil membre)
+   ========================================================= */
 .events-carousel{
   overflow:hidden;
   margin:0 -6% 20px;
@@ -1111,7 +1244,11 @@ nav.admin-tabbar a .ic{ font-size:16px; }
   border-radius:14px;
   margin:0 0 30px;
 }
-/* ---------- Page publique : Tous les événements ---------- */
+
+
+/* =========================================================
+   PAGE PUBLIQUE : TOUS LES ÉVÉNEMENTS
+   ========================================================= */
 .public-events-list{
   display:flex;
   flex-direction:column;
@@ -1183,7 +1320,10 @@ nav.admin-tabbar a .ic{ font-size:16px; }
   line-height:1.55;
 }
 
-/* ---------- Direct intégré ---------- */
+
+/* =========================================================
+   DIRECT INTÉGRÉ
+   ========================================================= */
 .live-embed{
   position:relative;
   width:100%;
@@ -1201,13 +1341,17 @@ nav.admin-tabbar a .ic{ font-size:16px; }
   border:0;
 }
 
-/* ---------- Carte de membre ---------- */
+
+/* =========================================================
+   CARTE DE MEMBRE — état vide/inactif (bloc simple)
+   ========================================================= */
 .member-card-visual{
   background:linear-gradient(135deg, #F0602E, #B5121B);
   border-radius:20px;
   padding:26px 22px;
   color:#fff;
   box-shadow:0 12px 26px rgba(225,72,31,.35);
+  width:100%;
 }
 .member-card-visual.inactive{
   background:linear-gradient(135deg, #999, #666);
@@ -1221,22 +1365,158 @@ nav.admin-tabbar a .ic{ font-size:16px; }
   font-size:12px;
   font-weight:700;
   opacity:.9;
+  flex-wrap:wrap;
+  gap:8px;
 }
 .member-card-badge{
   background:rgba(255,255,255,.25);
   padding:3px 10px;
   border-radius:20px;
   font-size:10px;
+  white-space:nowrap;
 }
 .member-card-name{
   font-family:Arial, sans-serif;
   font-size:20px;
   font-weight:800;
   margin-top:30px;
+  word-break:break-word;
 }
 .member-card-status{
   font-family:Arial, sans-serif;
   font-size:12px;
   margin-top:8px;
   opacity:.85;
+}
+
+
+/* =========================================================
+   CARTE DE MEMBRE — design carte d'identité (avec fond filigrane)
+   ========================================================= */
+.member-id-card{
+  position:relative;
+  background-color:#fff;
+  background-image:url('/img/carte-fond.png');
+  background-repeat:repeat;
+  background-size:220px;
+  border-radius:18px;
+  box-shadow:0 10px 24px rgba(0,0,0,.12);
+  overflow:hidden;
+  isolation:isolate;
+}
+
+.member-id-badge{
+  display:inline-block;
+  background:linear-gradient(135deg, #F0602E, #E1481F);
+  color:#fff;
+  font-family:Arial, sans-serif;
+  font-weight:800;
+  font-size:13px;
+  letter-spacing:.4px;
+  padding:10px 16px;
+  border-radius:10px;
+  box-shadow:0 6px 14px rgba(225,72,31,.3);
+  white-space:nowrap;
+  margin:16px 0 16px 16px;
+}
+
+.member-id-blood{
+  position:absolute;
+  top:0;
+  right:0;
+  background:linear-gradient(135deg, #F0602E, #E1481F);
+  color:#fff;
+  font-family:Arial, sans-serif;
+  font-weight:800;
+  font-size:15px;
+  padding:10px 14px 10px 18px;
+  border-radius:0 18px 0 14px;
+  box-shadow:0 6px 14px rgba(225,72,31,.3);
+  z-index:2;
+}
+
+.member-id-body{
+  display:flex;
+  gap:14px;
+  padding:0 16px 18px;
+}
+
+.member-id-photo{
+  flex:0 0 88px;
+  height:104px;
+  border-radius:10px;
+  overflow:hidden;
+  background:#f5f5f5;
+  box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+.member-id-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.member-id-photo-placeholder{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Arial, sans-serif;
+  font-weight:800;
+  font-size:22px;
+  color:#F0602E;
+  background:#FFF3ED;
+}
+
+.member-id-info{
+  flex:1;
+  min-width:0;
+}
+.member-id-label{
+  font-family:Arial, sans-serif;
+  font-size:10px;
+  color:#F0602E;
+  font-weight:600;
+  margin-top:7px;
+}
+.member-id-label:first-child{ margin-top:0; }
+.member-id-value{
+  font-family:Arial, sans-serif;
+  font-size:12.5px;
+  font-weight:800;
+  color:#1a1a1a;
+  word-break:break-word;
+  line-height:1.2;
+}
+
+.member-id-expiry{
+  padding:10px 16px;
+  border-top:1px solid rgba(240,96,46,.15);
+  font-family:Arial, sans-serif;
+  font-size:10.5px;
+  color:#999;
+  text-align:center;
+  background:rgba(255,255,255,.75);
+}
+
+
+/* =========================================================
+   AGENDA PERSONNEL
+   ========================================================= */
+/* .add-btn est déjà défini plus haut dans la section admin, réutilisé tel quel */
+
+
+/* =========================================================
+   SÉCURITÉ SUPPLÉMENTAIRE — TRÈS PETITS ÉCRANS (< 360px)
+   ========================================================= */
+@media (max-width:360px){
+  .admin main.content,
+  .device.dashboard main.content{
+    padding-left:5%;
+    padding-right:5%;
+  }
+  .page-header h1,
+  .page-title{
+    font-size:17px;
+  }
 }

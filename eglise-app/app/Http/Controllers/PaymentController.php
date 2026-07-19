@@ -1,39 +1,49 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Livre;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
-class AdminPaymentController extends Controller
+class PaymentController extends Controller
 {
-    public function index()
+    public function show()
     {
-        $payments = Payment::with('user')
-            ->latest()
-            ->paginate(10);
-
-        return view('admin.payments.index', compact('payments'));
+        return view('payment');
     }
 
-    public function updateStatus(Request $request, Payment $payment)
+    public function process(Request $request)
     {
         $data = $request->validate([
-            'statut' => ['required', 'in:en_attente,reussi,echoue'],
+            'methode'   => ['required', 'in:wave,orange,mtn,moov,card'],
+            'telephone' => ['required_unless:methode,card', 'nullable', 'string'],
         ]);
 
-        $payment->update(['statut' => $data['statut']]);
+        $payment = Payment::create([
+            'user_id'   => auth()->id(),
+            'produit'   => 'Comment créer un miracle',
+            'montant'   => 2000,
+            'methode'   => $data['methode'],
+            'telephone' => $data['telephone'] ?? null,
+            'statut'    => 'en_attente',
+            'reference' => 'PAY-' . strtoupper(Str::random(10)),
+        ]);
 
-        return redirect()->route('admin.payments.index')
-            ->with('success', 'Statut mis à jour.');
+        $payment->update(['statut' => 'reussi']);
+
+        session(['last_payment_reference' => $payment->reference]);
+
+        return redirect()->route('download');
     }
 
-    public function destroy(Payment $payment)
+    public function download()
     {
-        $payment->delete();
+        $reference = session('last_payment_reference');
+        $payment = Payment::where('reference', $reference)->first();
+        $livres = Livre::latest()->get();
 
-        return redirect()->route('admin.payments.index')
-            ->with('success', 'Le paiement a été supprimé.');
+        return view('download', compact('payment', 'livres'));
     }
 }

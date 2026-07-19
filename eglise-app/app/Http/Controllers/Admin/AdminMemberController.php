@@ -26,12 +26,8 @@ class AdminMemberController extends Controller
             'prenom'          => ['required', 'string', 'max:255'],
             'lieu_residence'  => ['nullable', 'string', 'max:255'],
             'role'            => ['required', 'in:admin,membre'],
-            'carte_membre'    => ['sometimes', 'boolean'],
         ]);
 
-        $data['carte_membre'] = $request->boolean('carte_membre');
-
-        // Empêche un admin de se retirer lui-même son propre accès par erreur
         if ($member->id === auth()->id() && $data['role'] !== 'admin') {
             return back()->withErrors(['role' => 'Tu ne peux pas retirer ton propre accès admin.']);
         }

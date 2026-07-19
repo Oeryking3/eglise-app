@@ -19,6 +19,15 @@ class User extends Authenticatable
         'lieu_residence',
         'password',
         'role',
+        'carte_membre',
+        'carte_photo',
+        'groupe_sanguin',
+        'carte_expiration',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     protected static function booted(): void
@@ -31,15 +40,12 @@ class User extends Authenticatable
         });
     }
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
     protected function casts(): array
     {
         return [
             'date_naissance'    => 'date',
+            'carte_expiration'  => 'date',
+            'carte_membre'      => 'boolean',
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
         ];
@@ -53,5 +59,23 @@ class User extends Authenticatable
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function getCartePhotoUrlAttribute(): ?string
+    {
+        return $this->carte_photo ? asset('storage/' . $this->carte_photo) : null;
+    }
+
+    public function getCarteEstValideAttribute(): bool
+    {
+        if (! $this->carte_membre) {
+            return false;
+        }
+
+        if ($this->carte_expiration && $this->carte_expiration->isPast()) {
+            return false;
+        }
+
+        return true;
     }
 }

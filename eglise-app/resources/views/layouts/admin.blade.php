@@ -33,28 +33,29 @@
     <a href="{{ route('admin.events.index') }}" class="{{ request()->routeIs('admin.events.*') ? 'active' : '' }}">
       <span class="ic">📅</span>Évén.
     </a>
-    <a href="{{ route('admin.notifications.index') }}" class="{{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
-      <span class="ic">🔔</span>Notifs
-    </a>
     <a href="{{ route('admin.payments.index') }}" class="{{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
       <span class="ic">💳</span>Paiem.
     </a>
     <a href="{{ route('admin.members.index') }}" class="{{ request()->routeIs('admin.members.*') ? 'active' : '' }}">
       <span class="ic">👥</span>Membres
     </a>
-    <a href="{{ route('admin.livres.index') }}" class="{{ request()->routeIs('admin.livres.*') ? 'active' : '' }}">
-      <span class="ic">📚</span>Livres
-    </a>
-    <a href="{{ route('admin.direct.edit') }}" class="{{ request()->routeIs('admin.direct.*') ? 'active' : '' }}">
-      <span class="ic">📡</span>Direct
-    </a>
-    <a href="{{ route('admin.avantages.index') }}" class="{{ request()->routeIs('admin.avantages.*') ? 'active' : '' }}">
-      <span class="ic">🎫</span>Avantages
-    </a>
-    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-      <span class="ic">🚪</span>Sortir
+    <a href="#" onclick="event.preventDefault(); document.getElementById('moreMenu').classList.toggle('open');" class="{{ request()->routeIs(['admin.notifications.*','admin.livres.*','admin.direct.*','admin.avantages.*','admin.cartes.*']) ? 'active' : '' }}">
+      <span class="ic">⋯</span>Plus
     </a>
   </nav>
+
+  <div id="moreMenu" class="admin-more-menu">
+    <div class="admin-more-sheet">
+      <a href="{{ route('admin.notifications.index') }}"><span class="ic">🔔</span>Notifications</a>
+      <a href="{{ route('admin.livres.index') }}"><span class="ic">📚</span>Livres</a>
+      <a href="{{ route('admin.direct.edit') }}"><span class="ic">📡</span>Direct</a>
+      <a href="{{ route('admin.avantages.index') }}"><span class="ic">🎫</span>Avantages</a>
+      <a href="{{ route('admin.cartes.index') }}"><span class="ic">🪪</span>Cartes de membre</a>
+      <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><span class="ic">🚪</span>Sortir</a>
+      <button type="button" class="admin-more-close" onclick="document.getElementById('moreMenu').classList.remove('open');">Fermer</button>
+    </div>
+  </div>
+
   <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display:none;">
     @csrf
   </form>

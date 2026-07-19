@@ -38,11 +38,6 @@
         </select>
       </div>
 
-      <div class="form-check">
-        <input type="checkbox" name="carte_membre" id="carte_membre" value="1" {{ old('carte_membre', $member->carte_membre) ? 'checked' : '' }}>
-        <label for="carte_membre">Carte de membre active</label>
-      </div>
-
       <button type="submit" class="submit-btn">Mettre à jour</button>
     </form>
   </div>
