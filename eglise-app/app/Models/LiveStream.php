@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToEglise;
 use Illuminate\Database\Eloquent\Model;
 
 class LiveStream extends Model
 {
+    use BelongsToEglise;
+
     protected $fillable = [
+        'eglise_id',
         'url',
         'actif',
     ];
@@ -17,7 +21,7 @@ class LiveStream extends Model
 
     public static function current(): self
     {
-        return static::firstOrCreate(['id' => 1]);
+        return static::firstOrCreate([]);
     }
 
     public function getEmbedUrlAttribute(): ?string

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentRelayController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminEventController;
@@ -35,6 +36,8 @@ Route::post('/inscription', [AuthController::class, 'signup'])->name('signup.att
 Route::post('/deconnexion', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/enregistrement', [PageController::class, 'saving'])->name('saving');
+
+Route::get('/paiement/retour', [PaymentRelayController::class, 'retour'])->name('paiement.retour');
 Route::get('/confirmation', [PageController::class, 'confirm'])->name('confirm');
 
 Route::middleware('auth')->group(function () {
@@ -63,7 +66,7 @@ Route::prefix('agenda')->name('agenda.')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'is_admin', 'require_eglise_context'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('evenements', AdminEventController::class)

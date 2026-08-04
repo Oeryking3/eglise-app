@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Services\TenantContext;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use HasApiTokens, Notifiable;
 
     protected $fillable = [
+        'eglise_id',
         'member_id',
         'nom',
         'prenom',
@@ -33,11 +36,28 @@ class User extends Authenticatable
     protected static function booted(): void
     {
         static::creating(function (User $user) {
-            if (empty($user->member_id)) {
-                $lastId = (int) static::max('id');
-                $user->member_id = 'AM-' . str_pad($lastId + 1, 4, '0', STR_PAD_LEFT);
+            if (empty($user->eglise_id) && ! in_array($user->role, ['super_admin'], true)) {
+                $user->eglise_id = app(TenantContext::class)->egliseId();
+            }
+
+            if (empty($user->member_id) && $user->eglise_id) {
+                $eglise = Eglise::findOrFail($user->eglise_id);
+                $sequence = $eglise->nextMemberSequence();
+                $user->member_id = $eglise->code . '-' . str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
             }
         });
+    }
+
+    public function eglise()
+    {
+        return $this->belongsTo(Eglise::class);
+    }
+
+    public function scopeForActingTenant($query)
+    {
+        $context = app(TenantContext::class);
+
+        return $context->bypassed() ? $query : $query->where('eglise_id', $context->egliseId());
     }
 
     protected function casts(): array
@@ -51,9 +71,19 @@ class User extends Authenticatable
         ];
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+    public function isAdminEglise(): bool
+    {
+        return $this->role === 'admin_eglise';
+    }
+
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->isSuperAdmin() || $this->isAdminEglise();
     }
 
     public function payments()

@@ -10,7 +10,8 @@ class MembershipCardController extends Controller
 {
     public function index()
     {
-        $members = User::where('role', 'membre')
+        $members = User::forActingTenant()
+            ->where('role', 'membre')
             ->orderBy('nom')
             ->paginate(15);
 
@@ -19,11 +20,15 @@ class MembershipCardController extends Controller
 
     public function edit(User $member)
     {
+        $this->authorize('view', $member);
+
         return view('admin.cartes.edit', compact('member'));
     }
 
     public function update(Request $request, User $member)
     {
+        $this->authorize('update', $member);
+
         $data = $request->validate([
             'carte_photo'       => ['nullable', 'image', 'max:4096'],
             'date_naissance'    => ['nullable', 'date'],
@@ -46,6 +51,8 @@ class MembershipCardController extends Controller
 
     public function destroy(User $member)
     {
+        $this->authorize('update', $member);
+
         $member->update([
             'carte_membre'      => false,
             'carte_photo'       => null,

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ma carte - Église Ambassade des Miracles</title>
+<title>Ma carte - {{ $user->eglise->nom ?? 'Église' }}</title>
 <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 <body>
@@ -63,7 +63,7 @@
             @endif
 
             <div class="member-id-label">Église</div>
-            <div class="member-id-value">AMBASSADE DES MIRACLES</div>
+            <div class="member-id-value">{{ strtoupper($user->eglise->nom ?? '') }}</div>
           </div>
         </div>
 
@@ -91,7 +91,7 @@
     @else
       <div class="member-card-visual inactive">
         <div class="member-card-top">
-          <span>Église Ambassade des Miracles</span>
+          <span>{{ $user->eglise->nom ?? 'Église' }}</span>
         </div>
         <div class="member-card-status">
           @if (! $user->carte_membre)

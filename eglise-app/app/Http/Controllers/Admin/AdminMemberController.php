@@ -10,25 +10,29 @@ class AdminMemberController extends Controller
 {
     public function index()
     {
-        $members = User::orderBy('created_at', 'desc')->paginate(15);
+        $members = User::forActingTenant()->orderBy('created_at', 'desc')->paginate(15);
         return view('admin.members.index', compact('members'));
     }
 
     public function edit(User $member)
     {
+        $this->authorize('view', $member);
+
         return view('admin.members.edit', compact('member'));
     }
 
     public function update(Request $request, User $member)
     {
+        $this->authorize('update', $member);
+
         $data = $request->validate([
             'nom'             => ['required', 'string', 'max:255'],
             'prenom'          => ['required', 'string', 'max:255'],
             'lieu_residence'  => ['nullable', 'string', 'max:255'],
-            'role'            => ['required', 'in:admin,membre'],
+            'role'            => ['required', 'in:admin_eglise,membre'],
         ]);
 
-        if ($member->id === auth()->id() && $data['role'] !== 'admin') {
+        if ($member->id === auth()->id() && $data['role'] !== 'admin_eglise') {
             return back()->withErrors(['role' => 'Tu ne peux pas retirer ton propre accès admin.']);
         }
 
@@ -39,6 +43,8 @@ class AdminMemberController extends Controller
 
     public function destroy(User $member)
     {
+        $this->authorize('delete', $member);
+
         if ($member->id === auth()->id()) {
             return back()->withErrors(['member' => 'Tu ne peux pas supprimer ton propre compte.']);
         }

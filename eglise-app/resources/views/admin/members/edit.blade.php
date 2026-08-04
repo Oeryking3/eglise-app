@@ -34,7 +34,7 @@
         <label>Rôle</label>
         <select name="role">
           <option value="membre" {{ old('role', $member->role) === 'membre' ? 'selected' : '' }}>Utilisateur</option>
-          <option value="admin" {{ old('role', $member->role) === 'admin' ? 'selected' : '' }}>Admin</option>
+          <option value="admin_eglise" {{ old('role', $member->role) === 'admin_eglise' ? 'selected' : '' }}>Admin</option>
         </select>
       </div>
 

@@ -9,7 +9,7 @@
     <div class="list-card">
       <div class="t">
         {{ $member->prenom }} {{ $member->nom }}
-        @if ($member->role === 'admin')
+        @if ($member->role === 'admin_eglise')
           <span class="badge success" style="margin-left:6px;">Admin</span>
         @endif
       </div>
