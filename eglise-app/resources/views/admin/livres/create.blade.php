@@ -26,6 +26,11 @@
         </div>
 
         <div class="form-group">
+            <label>Prix (FCFA)</label>
+            <input type="number" name="prix" min="1" value="{{ old('prix', 2000) }}" required>
+        </div>
+
+        <div class="form-group">
             <label>Fichier PDF</label>
             <input type="file" name="fichier" accept="application/pdf" required>
         </div>

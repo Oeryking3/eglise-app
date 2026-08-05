@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\LivreResource;
 use App\Models\Livre;
+use App\Rules\ValidPdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,7 +21,8 @@ class LivreController extends Controller
         $data = $request->validate([
             'titre' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'fichier' => ['required', 'file', 'mimes:pdf', 'max:20480'],
+            'prix' => ['required', 'integer', 'min:1'],
+            'fichier' => ['required', 'file', new ValidPdf, 'max:20480'],
         ]);
 
         $data['fichier'] = $request->file('fichier')->store('livres', 'public');

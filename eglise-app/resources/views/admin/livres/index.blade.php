@@ -20,6 +20,7 @@
             @if ($livre->description)
                 <p>{{ $livre->description }}</p>
             @endif
+            <p style="color:#F0602E; font-weight:700;">{{ number_format($livre->prix, 0, ',', ' ') }} FCFA</p>
             <div class="actions">
                 <a href="{{ asset('storage/' . $livre->fichier) }}" target="_blank" style="color:#F0602E; font-family:Arial, sans-serif; font-size:12px; font-weight:700; text-decoration:none;">
                     Voir le PDF

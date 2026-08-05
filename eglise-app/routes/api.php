@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\EgliseRequestController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\LivreController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\PushTokenController;
 use App\Http\Controllers\Api\SuperAdmin\EgliseController as SuperAdminEgliseController;
 use App\Http\Controllers\Api\SuperAdmin\EgliseRequestController as SuperAdminEgliseRequestController;
 use App\Http\Controllers\Api\SuperAdmin\StatsController as SuperAdminStatsController;
@@ -29,8 +30,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1');
 Route::get('/eglises', [EgliseController::class, 'index']);
 Route::post('/eglises/demandes', [EgliseRequestController::class, 'store']);
 
@@ -55,10 +56,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/carte', [CardController::class, 'show']);
 
-    Route::get('/paiement/config', [PaymentController::class, 'config']);
     Route::post('/paiement', [PaymentController::class, 'store']);
     Route::get('/paiements/{payment}', [PaymentController::class, 'show']);
     Route::get('/livres', [LivreController::class, 'index']);
+    Route::post('/push-token', [PushTokenController::class, 'store']);
 
     /*
     |--------------------------------------------------------------------------

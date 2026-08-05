@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\CardBenefitController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\Admin\MembershipCardController;
+use App\Http\Controllers\LivreDownloadController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,16 +29,20 @@ Route::get('/', [PageController::class, 'splash'])->name('splash');
 Route::get('/bienvenue', [PageController::class, 'home'])->name('home');
 
 Route::get('/connexion', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/connexion', [AuthController::class, 'login'])->name('login.attempt');
+Route::post('/connexion', [AuthController::class, 'login'])->name('login.attempt')->middleware('throttle:6,1');
 
 Route::get('/inscription', [AuthController::class, 'showSignup'])->name('signup');
-Route::post('/inscription', [AuthController::class, 'signup'])->name('signup.attempt');
+Route::post('/inscription', [AuthController::class, 'signup'])->name('signup.attempt')->middleware('throttle:6,1');
 
 Route::post('/deconnexion', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/enregistrement', [PageController::class, 'saving'])->name('saving');
 
 Route::get('/paiement/retour', [PaymentRelayController::class, 'retour'])->name('paiement.retour');
+
+Route::get('/livres/{livre}/telecharger', [LivreDownloadController::class, 'show'])
+    ->name('livres.telecharger')
+    ->middleware('signed');
 Route::get('/confirmation', [PageController::class, 'confirm'])->name('confirm');
 
 Route::middleware('auth')->group(function () {

@@ -13,6 +13,7 @@ class LivreResource extends JsonResource
             'id' => $this->id,
             'titre' => $this->titre,
             'description' => $this->description,
+            'prix' => $this->prix,
             'fichier_url' => $this->fichier ? asset('storage/' . $this->fichier) : null,
         ];
     }

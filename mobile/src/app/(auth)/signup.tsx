@@ -33,6 +33,7 @@ export default function SignupScreen() {
     lieu_residence: '',
   });
   const [egliseId, setEgliseId] = useState<number | null>(null);
+  const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -49,10 +50,21 @@ export default function SignupScreen() {
     );
   };
 
+  const openSexePicker = () => {
+    show('Sexe', undefined, [
+      { text: 'Homme', onPress: () => set('sexe')('Homme') },
+      { text: 'Femme', onPress: () => set('sexe')('Femme') },
+    ]);
+  };
+
   const onSubmit = async () => {
     setError(null);
     if (!egliseId) {
       setError('Choisis ton église.');
+      return;
+    }
+    if (!accepted) {
+      setError('Tu dois accepter la politique de confidentialité pour continuer.');
       return;
     }
     setLoading(true);
@@ -117,18 +129,34 @@ export default function SignupScreen() {
               onChange={set('date_naissance')}
               maximumDate={TODAY}
             />
-            <IconField
-              icon={<Feather name="users" size={18} color={colors.orange} />}
-              placeholder="Sexe (Homme / Femme)"
-              value={form.sexe}
-              onChangeText={set('sexe')}
-            />
+            <Pressable onPress={openSexePicker}>
+              <View pointerEvents="none">
+                <IconField
+                  icon={<Feather name="users" size={18} color={colors.orange} />}
+                  placeholder="Sexe (Homme / Femme)"
+                  value={form.sexe}
+                  editable={false}
+                />
+              </View>
+            </Pressable>
             <IconField
               icon={<Feather name="map-pin" size={18} color={colors.orange} />}
               placeholder="Lieu de résidence"
               value={form.lieu_residence}
               onChangeText={set('lieu_residence')}
             />
+
+            <View style={styles.consentRow}>
+              <Pressable onPress={() => setAccepted((a) => !a)} hitSlop={8}>
+                <Feather name={accepted ? 'check-square' : 'square'} size={20} color={colors.orange} />
+              </Pressable>
+              <Text style={styles.consentText}>
+                J'accepte la{' '}
+                <Text style={styles.consentLink} onPress={() => router.push('/(auth)/confidentialite')}>
+                  politique de confidentialité
+                </Text>
+              </Text>
+            </View>
 
             <PillButton title="S'inscrire" onPress={onSubmit} loading={loading} style={{ marginTop: spacing.sm }} />
           </ScrollView>
@@ -156,5 +184,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     fontWeight: '700',
     fontSize: 13,
+  },
+  consentRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginTop: spacing.md,
+  },
+  consentText: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.textLight,
+    lineHeight: 19,
+  },
+  consentLink: {
+    color: colors.orange,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
   },
 });

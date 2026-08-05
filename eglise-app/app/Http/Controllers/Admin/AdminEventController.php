@@ -4,10 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\PushToken;
+use App\Services\ExpoPushService;
 use Illuminate\Http\Request;
 
 class AdminEventController extends Controller
 {
+    public function __construct(private ExpoPushService $push)
+    {
+    }
+
     public function index()
     {
         $events = Event::orderBy('date_evenement', 'desc')->paginate(10);
@@ -43,7 +49,11 @@ class AdminEventController extends Controller
             $data['image'] = $request->file('image')->store('events', 'public');
         }
 
-        Event::create($data);
+        $event = Event::create($data);
+
+        if ($event->important) {
+            $this->notifyImportantEvent($event);
+        }
 
         return redirect()->route('admin.events.index')->with('success', 'Événement créé.');
     }
@@ -66,8 +76,9 @@ class AdminEventController extends Controller
         ]);
 
         $data['important'] = $request->boolean('important');
+        $becomesImportant = $data['important'] && ! $event->important;
 
-        if ($data['important'] && ! $event->important) {
+        if ($becomesImportant) {
             $count = Event::where('important', true)->where('id', '!=', $event->id)->count();
             if ($count >= 3) {
                 return back()
@@ -82,6 +93,10 @@ class AdminEventController extends Controller
 
         $event->update($data);
 
+        if ($becomesImportant) {
+            $this->notifyImportantEvent($event);
+        }
+
         return redirect()->route('admin.events.index')->with('success', 'Événement mis à jour.');
     }
 
@@ -89,5 +104,17 @@ class AdminEventController extends Controller
     {
         $event->delete();
         return back()->with('success', 'Événement supprimé.');
+    }
+
+    private function notifyImportantEvent(Event $event): void
+    {
+        $tokens = PushToken::pluck('token')->all();
+
+        $this->push->send(
+            $tokens,
+            'Nouvel événement à venir',
+            $event->titre,
+            ['type' => 'evenement', 'event_id' => $event->id],
+        );
     }
 }

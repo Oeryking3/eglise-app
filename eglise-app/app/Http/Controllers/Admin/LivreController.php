@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Livre;
+use App\Rules\ValidPdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -26,7 +27,8 @@ class LivreController extends Controller
         $data = $request->validate([
             'titre'       => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'fichier'     => ['required', 'file', 'mimes:pdf', 'max:20480'], // 20 Mo max
+            'prix'        => ['required', 'integer', 'min:1'],
+            'fichier'     => ['required', 'file', new ValidPdf, 'max:20480'], // 20 Mo max
         ]);
 
         $path = $request->file('fichier')->store('livres', 'public');
@@ -34,6 +36,7 @@ class LivreController extends Controller
         Livre::create([
             'titre'       => $data['titre'],
             'description' => $data['description'] ?? null,
+            'prix'        => $data['prix'],
             'fichier'     => $path,
         ]);
 

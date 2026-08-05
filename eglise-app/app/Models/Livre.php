@@ -15,5 +15,6 @@ class Livre extends Model
         'titre',
         'description',
         'fichier',
+        'prix',
     ];
 }

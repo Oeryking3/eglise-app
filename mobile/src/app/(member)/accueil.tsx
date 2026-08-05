@@ -152,8 +152,8 @@ export default function AccueilScreen() {
                 )}
 
                 <View style={{ marginTop: spacing.xl }}>
-                  <Link href="/(member)/paiement" asChild>
-                    <PillButton title="Comment créer un miracle" />
+                  <Link href="/(member)/livres" asChild>
+                    <PillButton title="Livres PDF" />
                   </Link>
                   <View style={{ height: spacing.md }} />
                   <Link href="/(member)/agenda" asChild>

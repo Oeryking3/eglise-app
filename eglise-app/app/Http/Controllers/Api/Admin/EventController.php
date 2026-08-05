@@ -5,11 +5,17 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EventResource;
 use App\Models\Event;
+use App\Models\PushToken;
+use App\Services\ExpoPushService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class EventController extends Controller
 {
+    public function __construct(private ExpoPushService $push)
+    {
+    }
+
     public function index()
     {
         return EventResource::collection(
@@ -40,14 +46,19 @@ class EventController extends Controller
 
         $event = Event::create($data);
 
+        if ($event->important) {
+            $this->notifyImportantEvent($event);
+        }
+
         return response()->json(['event' => new EventResource($event)], 201);
     }
 
     public function update(Request $request, Event $event)
     {
         $data = $this->validated($request);
+        $becomesImportant = ($data['important'] ?? false) && ! $event->important;
 
-        if (($data['important'] ?? false) && ! $event->important) {
+        if ($becomesImportant) {
             if (Event::where('important', true)->where('id', '!=', $event->id)->count() >= 3) {
                 throw ValidationException::withMessages([
                     'important' => 'Tu as déjà 3 événements marqués "à venir". Retire-en un avant d\'en ajouter un nouveau.',
@@ -61,6 +72,10 @@ class EventController extends Controller
 
         $event->update($data);
 
+        if ($becomesImportant) {
+            $this->notifyImportantEvent($event);
+        }
+
         return response()->json(['event' => new EventResource($event)]);
     }
 
@@ -69,6 +84,18 @@ class EventController extends Controller
         $event->delete();
 
         return response()->json(['message' => 'Événement supprimé.']);
+    }
+
+    private function notifyImportantEvent(Event $event): void
+    {
+        $tokens = PushToken::pluck('token')->all();
+
+        $this->push->send(
+            $tokens,
+            'Nouvel événement à venir',
+            $event->titre,
+            ['type' => 'evenement', 'event_id' => $event->id],
+        );
     }
 
     private function validated(Request $request): array

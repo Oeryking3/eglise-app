@@ -26,7 +26,16 @@ type Methode = (typeof METHODS)[number]['value'];
 // dans l'URL. Cet écran doit donc, à son chargement, détecter ce retour et
 // vérifier le vrai statut auprès du backend avant d'afficher quoi que ce soit.
 export default function PaiementScreen() {
-  const params = useLocalSearchParams<{ statut?: string; payment_id?: string }>();
+  const params = useLocalSearchParams<{
+    statut?: string;
+    payment_id?: string;
+    livre_id?: string;
+    titre?: string;
+    prix?: string;
+  }>();
+  const livreId = params.livre_id ? Number(params.livre_id) : null;
+  const titre = params.titre ?? 'Livre';
+  const prix = params.prix ? Number(params.prix) : 0;
   const [methode, setMethode] = useState<Methode>('wave');
   const [telephone, setTelephone] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +67,10 @@ export default function PaiementScreen() {
   }, [params.payment_id]);
 
   const onSubmit = async () => {
+    if (!livreId) {
+      setError('Choisis un livre à acheter.');
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
@@ -67,6 +80,7 @@ export default function PaiementScreen() {
           : Linking.createURL('paiement-retour');
 
       const { data } = await api.post<{ payment: { id: number }; payment_url: string }>('/paiement', {
+        livre_id: livreId,
         methode,
         telephone: methode !== 'card' ? telephone : undefined,
         return_url: returnUrl,
@@ -114,14 +128,23 @@ export default function PaiementScreen() {
     );
   }
 
+  if (!livreId) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', padding: spacing.xxl }}>
+        <Text style={{ fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.lg }}>
+          Choisis d'abord un livre à acheter.
+        </Text>
+        <PillButton title="Voir les livres" onPress={() => router.replace('/(member)/livres')} />
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <SafeAreaView edges={['top']} style={styles.header}>
-        <Text style={styles.title}>Comment créer un miracle</Text>
-        <Text style={styles.subtitle}>
-          Débloque le guide complet en PDF pour marcher dans la foi et voir des miracles se manifester.
-        </Text>
-        <Text style={styles.price}>2 000 FCFA</Text>
+        <Text style={styles.title}>{titre}</Text>
+        <Text style={styles.subtitle}>Débloque ce guide en PDF, téléchargeable après paiement.</Text>
+        <Text style={styles.price}>{prix.toLocaleString('fr-FR')} FCFA</Text>
       </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -160,7 +183,7 @@ export default function PaiementScreen() {
           </Text>
         )}
 
-        <PillButton title="Payer 2 000 FCFA" onPress={onSubmit} loading={loading} />
+        <PillButton title={`Payer ${prix.toLocaleString('fr-FR')} FCFA`} onPress={onSubmit} loading={loading} />
       </ScrollView>
     </View>
   );

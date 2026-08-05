@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AdminPageHeader } from '@/components/AdminPageHeader';
 import { FormGroup } from '@/components/FormGroup';
 import { PillButton } from '@/components/PillButton';
@@ -13,6 +13,7 @@ export default function AdminLivreCreerScreen() {
   const queryClient = useQueryClient();
   const [titre, setTitre] = useState('');
   const [description, setDescription] = useState('');
+  const [prix, setPrix] = useState('2000');
   const [file, setFile] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -29,17 +30,29 @@ export default function AdminLivreCreerScreen() {
       setError('Choisis un fichier PDF.');
       return;
     }
+    if (!prix || Number(prix) <= 0) {
+      setError('Indique un prix valide.');
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
       const form = new FormData();
       form.append('titre', titre);
       form.append('description', description);
-      form.append('fichier', {
-        uri: file.uri,
-        name: file.name ?? 'document.pdf',
-        type: 'application/pdf',
-      } as unknown as Blob);
+      form.append('prix', prix);
+      if (Platform.OS === 'web' && file.file) {
+        // Sur le web, expo-document-picker fournit un vrai objet File — c'est
+        // lui qu'il faut envoyer, pas l'objet {uri, name, type} (celui-là ne
+        // produit pas un vrai fichier dans la requête multipart sur le web).
+        form.append('fichier', file.file, file.name ?? 'document.pdf');
+      } else {
+        form.append('fichier', {
+          uri: file.uri,
+          name: file.name ?? 'document.pdf',
+          type: 'application/pdf',
+        } as unknown as Blob);
+      }
 
       await api.post('/admin/livres', form, { headers: { 'Content-Type': 'multipart/form-data' } });
       queryClient.invalidateQueries({ queryKey: ['admin-livres'] });
@@ -57,6 +70,7 @@ export default function AdminLivreCreerScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <FormGroup label="Titre" value={titre} onChangeText={setTitre} />
         <FormGroup label="Description" value={description} onChangeText={setDescription} multiline />
+        <FormGroup label="Prix (FCFA)" value={prix} onChangeText={setPrix} keyboardType="numeric" />
 
         <Text style={styles.label}>Fichier PDF</Text>
         <PillButton

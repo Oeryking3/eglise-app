@@ -71,6 +71,7 @@ export type AgendaItem = {
 export type Payment = {
   id: number;
   user?: User;
+  livre_id: number | null;
   produit: string;
   montant: number;
   methode: 'wave' | 'orange' | 'mtn' | 'moov' | 'card';
@@ -84,6 +85,8 @@ export type Livre = {
   id: number;
   titre: string;
   description: string | null;
+  prix: number;
+  achete: boolean;
   fichier_url: string | null;
 };
 

@@ -73,6 +73,10 @@ export default function LoginScreen() {
               <Link href="/(auth)/demande-eglise" style={styles.linkText}>
                 Tu représentes une église ? Demande ton espace admin
               </Link>
+
+              <Link href="/(auth)/confidentialite" style={styles.linkText}>
+                Politique de confidentialité
+              </Link>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>

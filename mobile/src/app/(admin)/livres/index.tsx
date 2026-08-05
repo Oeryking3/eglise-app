@@ -55,6 +55,7 @@ export default function AdminLivresScreen() {
             <View key={livre.id} style={styles.card}>
               <Text style={styles.title}>{livre.titre}</Text>
               {livre.description ? <Text style={styles.description}>{livre.description}</Text> : null}
+              <Text style={styles.price}>{livre.prix.toLocaleString('fr-FR')} FCFA</Text>
               <View style={styles.actions}>
                 <PillButton
                   title="Voir le PDF"
@@ -86,6 +87,7 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 15, fontWeight: '800', color: colors.textDark },
   description: { fontSize: 13, color: colors.textMuted, marginTop: 6 },
+  price: { fontSize: 13, fontWeight: '800', color: colors.orange, marginTop: 6 },
   actions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
   actionBtn: { flex: 1, paddingVertical: 10 },
 });

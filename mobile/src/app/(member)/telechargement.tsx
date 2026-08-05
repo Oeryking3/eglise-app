@@ -14,7 +14,7 @@ export default function TelechargementScreen() {
     queryFn: async () => (await api.get<{ data: Livre[] } | Livre[]>('/livres')).data,
   });
 
-  const livres = Array.isArray(data) ? data : data?.data ?? [];
+  const livres = (Array.isArray(data) ? data : data?.data ?? []).filter((l) => l.achete);
 
   return (
     <ScrollView contentContainerStyle={styles.content}>

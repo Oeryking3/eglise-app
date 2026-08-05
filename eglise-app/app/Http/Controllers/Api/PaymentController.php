@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PaymentResource;
+use App\Models\Livre;
 use App\Models\Payment;
 use App\Services\CinetPayService;
 use Illuminate\Http\Request;
@@ -11,17 +12,6 @@ use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
-    private const PRODUIT = 'Comment créer un miracle';
-    private const MONTANT = 2000;
-
-    public function config()
-    {
-        return response()->json([
-            'amount' => self::MONTANT,
-            'produit' => self::PRODUIT,
-        ]);
-    }
-
     /**
      * Crée le paiement côté CinetPay et renvoie l'URL de la page de paiement
      * hébergée par CinetPay. Le client mobile doit passer son propre
@@ -29,19 +19,35 @@ class PaymentController extends Controller
      * car CinetPay refuse les schémas personnalisés en success_url/failed_url —
      * on relaie donc via une route web (paiement.retour) qui, elle, redirige
      * vers ce schéma personnalisé une fois que CinetPay a redirigé chez nous.
+     *
+     * Le prix et le nom du produit viennent toujours du livre en base (jamais
+     * du client), pour ne pas pouvoir être falsifiés depuis l'app.
      */
     public function store(Request $request, CinetPayService $cinetpay)
     {
         $data = $request->validate([
+            'livre_id' => ['required', 'integer', 'exists:livres,id'],
             'methode' => ['required', 'in:wave,orange,mtn,moov,card'],
             'telephone' => ['required_unless:methode,card', 'nullable', 'string'],
             'return_url' => ['required', 'string'],
         ]);
 
+        $livre = Livre::findOrFail($data['livre_id']);
+
+        $dejaAchete = Payment::where('user_id', $request->user()->id)
+            ->where('livre_id', $livre->id)
+            ->where('statut', 'reussi')
+            ->exists();
+
+        if ($dejaAchete) {
+            return response()->json(['message' => 'Tu as déjà acheté ce livre.'], 422);
+        }
+
         $payment = Payment::create([
             'user_id' => $request->user()->id,
-            'produit' => self::PRODUIT,
-            'montant' => self::MONTANT,
+            'livre_id' => $livre->id,
+            'produit' => $livre->titre,
+            'montant' => $livre->prix,
             'methode' => $data['methode'],
             'telephone' => $data['telephone'] ?? null,
             'statut' => 'en_attente',
@@ -56,8 +62,8 @@ class PaymentController extends Controller
         $result = $cinetpay->initiatePayment([
             'currency' => config('cinetpay.currency'),
             'merchant_transaction_id' => $payment->reference,
-            'amount' => self::MONTANT,
-            'designation' => self::PRODUIT,
+            'amount' => $livre->prix,
+            'designation' => $livre->titre,
             'success_url' => $relayUrl . '&statut=succes',
             'failed_url' => $relayUrl . '&statut=echec',
             'notify_url' => $relayUrl . '&statut=notify',

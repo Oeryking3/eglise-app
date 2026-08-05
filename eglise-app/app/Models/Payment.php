@@ -14,6 +14,7 @@ class Payment extends Model
     protected $fillable = [
         'eglise_id',
         'user_id',
+        'livre_id',
         'produit',
         'montant',
         'methode',
@@ -25,5 +26,10 @@ class Payment extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function livre()
+    {
+        return $this->belongsTo(Livre::class);
     }
 }

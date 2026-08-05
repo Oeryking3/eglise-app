@@ -52,7 +52,7 @@ class AuthController extends Controller
             'nom'             => ['required', 'string', 'max:255'],
             'prenom'          => ['required', 'string', 'max:255'],
             'email'           => ['required', 'email', 'unique:users,email'],
-            'password'        => ['required', 'string', 'min:6'],
+            'password'        => ['required', 'string', 'min:8'],
             'date_naissance'  => ['nullable', 'date'],
             'sexe'            => ['nullable', 'string'],
             'lieu_residence'  => ['nullable', 'string'],
