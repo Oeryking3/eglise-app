@@ -19,28 +19,36 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $eglise = $user->eglise;
 
-        $upcomingEvents = Event::where('important', true)
-            ->orderBy('date_evenement')
-            ->take(3)
-            ->get();
+        $upcomingEvents = $eglise && ! $eglise->hasFeature('evenements')
+            ? collect()
+            : Event::where('important', true)->orderBy('date_evenement')->take(3)->get();
 
-        $notifications = ChurchNotification::latest()->take(4)->get();
+        $notifications = $eglise && ! $eglise->hasFeature('notifications')
+            ? collect()
+            : ChurchNotification::latest()->take(4)->get();
 
-        $liveStream = LiveStream::current();
+        $liveStream = $eglise && ! $eglise->hasFeature('direct') ? null : LiveStream::current();
 
         $reminders = AgendaItem::where('user_id', $user->id)
             ->where('date_rappel', '<=', now()->toDateString())
             ->where('notifie', false)
             ->get();
 
-        AgendaItem::whereIn('id', $reminders->pluck('id'))->update(['notifie' => true]);
+        // Un rappel du jour même reste visible à chaque ouverture de l'app
+        // tant que sa journée n'est pas terminée — seuls les rappels déjà
+        // passés (jours précédents) sont marqués comme notifiés, pour ne
+        // plus jamais réapparaître après coup.
+        AgendaItem::whereIn('id', $reminders->pluck('id'))
+            ->where('date_rappel', '<', now()->toDateString())
+            ->update(['notifie' => true]);
 
         return response()->json([
             'user' => new UserResource($user),
             'upcoming_events' => EventResource::collection($upcomingEvents),
             'notifications' => ChurchNotificationResource::collection($notifications),
-            'live_stream' => new LiveStreamResource($liveStream),
+            'live_stream' => $liveStream ? new LiveStreamResource($liveStream) : null,
             'agenda_reminders' => AgendaItemResource::collection($reminders),
         ]);
     }

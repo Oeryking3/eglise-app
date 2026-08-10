@@ -6,29 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PaymentResource;
 use App\Models\Livre;
 use App\Models\Payment;
-use App\Services\CinetPayService;
+use App\Services\GeniusPayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
     /**
-     * Crée le paiement côté CinetPay et renvoie l'URL de la page de paiement
-     * hébergée par CinetPay. Le client mobile doit passer son propre
+     * Crée le paiement côté GeniusPay et renvoie l'URL de la page de paiement
+     * hébergée par GeniusPay. Le client mobile doit passer son propre
      * "return_url" (schéma personnalisé de l'app, ex: monapp://paiement-retour)
-     * car CinetPay refuse les schémas personnalisés en success_url/failed_url —
-     * on relaie donc via une route web (paiement.retour) qui, elle, redirige
-     * vers ce schéma personnalisé une fois que CinetPay a redirigé chez nous.
+     * — on relaie donc via une route web (paiement.retour) qui redirige vers
+     * ce schéma personnalisé une fois que GeniusPay a redirigé chez nous.
      *
      * Le prix et le nom du produit viennent toujours du livre en base (jamais
      * du client), pour ne pas pouvoir être falsifiés depuis l'app.
      */
-    public function store(Request $request, CinetPayService $cinetpay)
+    public function store(Request $request, GeniusPayService $geniuspay)
     {
         $data = $request->validate([
             'livre_id' => ['required', 'integer', 'exists:livres,id'],
-            'methode' => ['required', 'in:wave,orange,mtn,moov,card'],
-            'telephone' => ['required_unless:methode,card', 'nullable', 'string'],
             'return_url' => ['required', 'string'],
         ]);
 
@@ -48,8 +45,6 @@ class PaymentController extends Controller
             'livre_id' => $livre->id,
             'produit' => $livre->titre,
             'montant' => $livre->prix,
-            'methode' => $data['methode'],
-            'telephone' => $data['telephone'] ?? null,
             'statut' => 'en_attente',
             'reference' => 'PAY-' . Str::uuid(),
         ]);
@@ -59,23 +54,42 @@ class PaymentController extends Controller
             'mobile_return' => $data['return_url'],
         ]);
 
-        $result = $cinetpay->initiatePayment([
-            'currency' => config('cinetpay.currency'),
-            'merchant_transaction_id' => $payment->reference,
-            'amount' => $livre->prix,
-            'designation' => $livre->titre,
-            'success_url' => $relayUrl . '&statut=succes',
-            'failed_url' => $relayUrl . '&statut=echec',
-            'notify_url' => $relayUrl . '&statut=notify',
-        ]);
+        try {
+            // On ne précise volontairement pas `payment_method` : en mode
+            // Live, l'API GeniusPay ignore ce paramètre et route toujours
+            // vers Wave quoi qu'on envoie (bug confirmé côté GeniusPay, pas
+            // chez nous). En omettant le champ, on bascule en "mode
+            // checkout" — leur propre approche recommandée — où le client
+            // choisit sa méthode directement sur leur page hébergée.
+            $result = $geniuspay->initiatePayment([
+                'amount' => $livre->prix,
+                'currency' => 'XOF',
+                'description' => $livre->titre,
+                'customer' => [
+                    'name' => trim($request->user()->prenom . ' ' . $request->user()->nom),
+                    'email' => $request->user()->email,
+                ],
+                'success_url' => $relayUrl . '&statut=succes',
+                'error_url' => $relayUrl . '&statut=echec',
+                'metadata' => [
+                    'order_id' => $payment->reference,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            $payment->update(['statut' => 'echoue']);
 
-        $paymentUrl = $result['payment_url'] ?? null;
+            return response()->json(['message' => $e->getMessage()], 502);
+        }
+
+        $paymentUrl = $result['data']['checkout_url'] ?? $result['data']['payment_url'] ?? null;
 
         if (! $paymentUrl) {
             $payment->update(['statut' => 'echoue']);
 
-            return response()->json(['message' => 'Impossible de créer le paiement CinetPay.'], 502);
+            return response()->json(['message' => 'Impossible de créer le paiement GeniusPay.'], 502);
         }
+
+        $payment->update(['provider_reference' => $result['data']['reference'] ?? null]);
 
         return response()->json([
             'payment' => new PaymentResource($payment),
@@ -83,42 +97,53 @@ class PaymentController extends Controller
         ], 201);
     }
 
-    public function show(Request $request, Payment $payment, CinetPayService $cinetpay)
+    public function show(Request $request, Payment $payment, GeniusPayService $geniuspay)
     {
         abort_if($payment->user_id !== $request->user()->id, 403);
 
         if ($payment->statut === 'en_attente') {
-            $this->refreshStatus($payment, $cinetpay);
+            $this->refreshStatus($payment, $geniuspay);
         }
 
         return new PaymentResource($payment);
     }
 
-    public function refreshStatus(Payment $payment, CinetPayService $cinetpay): void
+    /**
+     * Confirmation de secours : GeniusPay recommande le webhook comme moyen
+     * fiable de confirmation, mais expose aussi un vrai endpoint de
+     * vérification par référence (contrairement à Kadev Pay) — on peut donc
+     * revérifier activement dès que la référence GeniusPay est connue
+     * (capturée dès la création du paiement).
+     */
+    public function refreshStatus(Payment $payment, GeniusPayService $geniuspay): void
     {
+        if (! $payment->provider_reference) {
+            return;
+        }
+
         try {
-            $result = $cinetpay->checkStatus($payment->reference);
+            $result = $geniuspay->verifyTransaction($payment->provider_reference);
         } catch (\Throwable $e) {
             return;
         }
 
-        $status = strtoupper((string) ($result['status'] ?? $result['data']['status'] ?? ''));
+        // Statuts documentés par GeniusPay : pending, processing, completed,
+        // failed, cancelled, refunded.
+        $status = strtolower((string) ($result['data']['status'] ?? ''));
 
-        // La doc publique CinetPay (API classique) documente ACCEPTED/REFUSED,
-        // mais ce compte utilise la génération d'API plus récente
-        // (api.cinetpay.net), dont le vocabulaire exact des statuts terminaux
-        // n'a pas pu être confirmé (docs inaccessibles). Reconnaissance large
-        // et défensive : par défaut on reste "en_attente" (jamais de faux
-        // positif) tant qu'un vrai paiement complété n'a pas permis de
-        // confirmer la valeur exacte retournée par CinetPay dans ce cas.
-        $statut = match (true) {
-            str_contains($status, 'ACCEPT') || str_contains($status, 'SUCCESS') || str_contains($status, 'PAYE') || str_contains($status, 'PAID') || str_contains($status, 'COMPLET') => 'reussi',
-            str_contains($status, 'REFUS') || str_contains($status, 'FAIL') || str_contains($status, 'CANCEL') || str_contains($status, 'EXPIR') => 'echoue',
+        $statut = match ($status) {
+            'completed' => 'reussi',
+            'failed', 'cancelled', 'expired' => 'echoue',
             default => 'en_attente',
         };
 
         if ($statut !== 'en_attente') {
-            $payment->update(['statut' => $statut]);
+            $provider = $result['data']['payment_provider'] ?? $result['data']['payment_method'] ?? null;
+
+            $payment->update([
+                'statut' => $statut,
+                'methode' => GeniusPayService::mapProviderToMethode($provider) ?? $payment->methode,
+            ]);
         }
     }
 }

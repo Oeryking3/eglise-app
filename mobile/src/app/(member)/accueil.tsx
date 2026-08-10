@@ -9,8 +9,9 @@ import { PillButton } from '@/components/PillButton';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { formatDateAndRange } from '@/lib/format';
-import { AgendaItem, ChurchNotification, EventItem, LiveStream, User } from '@/lib/types';
-import { colors, radii, spacing } from '@/theme/tokens';
+import { useThemeColors } from '@/lib/theme-context';
+import { AgendaItem, ChurchNotification, EventItem, LiveStream, ProgrammeItem, User } from '@/lib/types';
+import { colors as staticColors, radii, spacing } from '@/theme/tokens';
 
 type DashboardResponse = {
   user: User;
@@ -29,9 +30,15 @@ const EVENT_CARD_STRIDE = 220 + 12;
 
 export default function AccueilScreen() {
   const { user, logout } = useAuth();
+  const colors = useThemeColors();
   const { data, isLoading } = useQuery({
     queryKey: ['accueil'],
     queryFn: async () => (await api.get<DashboardResponse>('/accueil')).data,
+  });
+  const { data: programmeData } = useQuery({
+    queryKey: ['programme'],
+    queryFn: async () => (await api.get<{ data: ProgrammeItem[] } | ProgrammeItem[]>('/programme')).data,
+    enabled: user?.eglise_features.programme !== false,
   });
   const onLogout = async () => {
     await logout();
@@ -41,6 +48,17 @@ export default function AccueilScreen() {
   const events = data ? unwrap(data.upcoming_events) : [];
   const notifications = data ? unwrap(data.notifications) : [];
   const reminders = data ? unwrap(data.agenda_reminders) : [];
+  const programme = programmeData ? (Array.isArray(programmeData) ? programmeData : programmeData.data) : [];
+  const features = user?.eglise_features ?? {
+    evenements: true,
+    agenda: true,
+    carte: true,
+    livres: true,
+    avantages: true,
+    notifications: true,
+    direct: true,
+    programme: true,
+  };
 
   const [remindersOpen, setRemindersOpen] = useState(false);
 
@@ -105,64 +123,99 @@ export default function AccueilScreen() {
               <ActivityIndicator style={{ marginTop: 40 }} color={colors.orange} />
             ) : (
               <>
-                <Text style={styles.sectionTitle}>Évènements à venir</Text>
-                {events.length === 0 ? (
-                  <Text style={styles.empty}>Aucun événement à venir pour le moment.</Text>
-                ) : (
-                  <ScrollView
-                    ref={carouselRef}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={{ marginBottom: spacing.md }}
-                  >
-                    {events.map((ev) => (
-                      <View key={ev.id} style={styles.eventCard}>
-                        <Image source={{ uri: ev.image_url }} style={StyleSheet.absoluteFill} resizeMode="cover" />
-                        <LinearGradient
-                          colors={['transparent', 'rgba(0,0,0,0.75)']}
-                          style={StyleSheet.absoluteFill}
-                        />
-                        <View style={styles.eventCardText}>
-                          <Text style={styles.eventTitle} numberOfLines={2}>{ev.titre}</Text>
-                          <Text style={styles.eventMeta}>{formatDateAndRange(ev.date_evenement, ev.heure_debut)}</Text>
+                {features.evenements ? (
+                  <>
+                    <Text style={styles.sectionTitle}>Évènements à venir</Text>
+                    {events.length === 0 ? (
+                      <Text style={styles.empty}>Aucun événement à venir pour le moment.</Text>
+                    ) : (
+                      <ScrollView
+                        ref={carouselRef}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={{ marginBottom: spacing.md }}
+                      >
+                        {events.map((ev) => (
+                          <View key={ev.id} style={[styles.eventCard, { backgroundColor: colors.orangeLight }]}>
+                            <Image source={{ uri: ev.image_url }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                            <LinearGradient
+                              colors={['transparent', 'rgba(0,0,0,0.75)']}
+                              style={StyleSheet.absoluteFill}
+                            />
+                            <View style={styles.eventCardText}>
+                              <Text style={styles.eventTitle} numberOfLines={2}>{ev.titre}</Text>
+                              <Text style={styles.eventMeta}>{formatDateAndRange(ev.date_evenement, ev.heure_debut)}</Text>
+                            </View>
+                          </View>
+                        ))}
+                      </ScrollView>
+                    )}
+                    <Link href="/(member)/evenements" asChild>
+                      <PillButton title="Voir tous les événements" variant="outline" />
+                    </Link>
+                  </>
+                ) : null}
+
+                {features.programme && programme.length > 0 ? (
+                  <>
+                    <Text style={[styles.sectionTitle, { marginTop: spacing.xl }]}>Programme de la semaine</Text>
+                    {programme.map((p) => (
+                      <View key={p.id} style={styles.programmeRow}>
+                        <View style={[styles.programmeDay, { backgroundColor: colors.orangeLight }]}>
+                          <Text style={[styles.programmeDayText, { color: colors.orangeDark }]}>{p.jour}</Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.programmeTitle}>{p.titre}</Text>
+                          <Text style={styles.programmeHoraires}>{p.horaires}</Text>
                         </View>
                       </View>
                     ))}
-                  </ScrollView>
-                )}
-                <Link href="/(member)/evenements" asChild>
-                  <PillButton title="Voir tous les événements" variant="outline" />
-                </Link>
+                  </>
+                ) : null}
 
-                <Text style={[styles.sectionTitle, { marginTop: spacing.xl }]}>Notifications</Text>
-                {notifications.length === 0 ? (
-                  <Text style={styles.empty}>Aucune notification.</Text>
-                ) : (
-                  notifications.map((n) => (
-                    <View key={n.id} style={styles.notifCard}>
-                      <View style={styles.notifIcon}>
-                        <Feather name="mail" size={16} color="#fff" />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.notifTitle}>{n.titre}</Text>
-                        <Text style={styles.notifMessage}>{n.message}</Text>
-                      </View>
-                    </View>
-                  ))
-                )}
+                {features.notifications ? (
+                  <>
+                    <Text style={[styles.sectionTitle, { marginTop: spacing.xl }]}>Notifications</Text>
+                    {notifications.length === 0 ? (
+                      <Text style={styles.empty}>Aucune notification.</Text>
+                    ) : (
+                      notifications.map((n) => (
+                        <View key={n.id} style={styles.notifCard}>
+                          <View style={[styles.notifIcon, { backgroundColor: colors.orangeDark }]}>
+                            <Feather name="mail" size={16} color="#fff" />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={styles.notifTitle}>{n.titre}</Text>
+                            <Text style={styles.notifMessage}>{n.message}</Text>
+                          </View>
+                        </View>
+                      ))
+                    )}
+                  </>
+                ) : null}
 
                 <View style={{ marginTop: spacing.xl }}>
-                  <Link href="/(member)/livres" asChild>
-                    <PillButton title="Livres PDF" />
-                  </Link>
-                  <View style={{ height: spacing.md }} />
-                  <Link href="/(member)/agenda" asChild>
-                    <PillButton title="Mon agenda" variant="outline" />
-                  </Link>
-                  <View style={{ height: spacing.md }} />
-                  <Link href="/(member)/carte" asChild>
-                    <PillButton title="Ma carte de membre" variant="outline" />
-                  </Link>
+                  {features.livres ? (
+                    <>
+                      <Link href="/(member)/livres" asChild>
+                        <PillButton title="Livres PDF" />
+                      </Link>
+                      <View style={{ height: spacing.md }} />
+                    </>
+                  ) : null}
+                  {features.agenda ? (
+                    <>
+                      <Link href="/(member)/agenda" asChild>
+                        <PillButton title="Mon agenda" variant="outline" />
+                      </Link>
+                      <View style={{ height: spacing.md }} />
+                    </>
+                  ) : null}
+                  {features.carte ? (
+                    <Link href="/(member)/carte" asChild>
+                      <PillButton title="Ma carte de membre" variant="outline" />
+                    </Link>
+                  ) : null}
                 </View>
               </>
             )}
@@ -178,8 +231,8 @@ export default function AccueilScreen() {
               <Text style={styles.empty}>Aucun rappel pour aujourd'hui.</Text>
             ) : (
               reminders.map((r) => (
-                <View key={r.id} style={styles.reminderBanner}>
-                  <Text style={styles.reminderTitle}>{r.titre}</Text>
+                <View key={r.id} style={[styles.reminderBanner, { backgroundColor: colors.orangeLight }]}>
+                  <Text style={[styles.reminderTitle, { color: colors.orangeDark }]}>{r.titre}</Text>
                   <Text style={styles.reminderMeta}>{formatDateAndRange(r.date_rappel, r.heure_rappel)}</Text>
                   {r.description ? <Text style={styles.reminderText}>{r.description}</Text> : null}
                 </View>
@@ -218,9 +271,8 @@ const styles = StyleSheet.create({
     width: 9,
     height: 9,
     borderRadius: 5,
-    backgroundColor: colors.error,
+    backgroundColor: staticColors.error,
     borderWidth: 1.5,
-    borderColor: colors.orangeHeader,
   },
   greeting: { color: '#fff', fontSize: 20, fontWeight: '800' },
   headerSub: { color: 'rgba(255,255,255,0.85)', fontSize: 13, marginTop: 4 },
@@ -233,7 +285,7 @@ const styles = StyleSheet.create({
     aspectRatio: 257 / 163,
     marginTop: -55,
     marginBottom: -120,
-    borderRadius: radii.xl,
+    borderRadius: radii.md,
     backgroundColor: 'transparent',
     zIndex: 10,
     elevation: 10,
@@ -244,7 +296,7 @@ const styles = StyleSheet.create({
   },
   heroWrap: {
     flex: 1,
-    borderRadius: radii.xl,
+    borderRadius: radii.md,
     overflow: 'hidden',
   },
   hero: {
@@ -264,8 +316,8 @@ const styles = StyleSheet.create({
     paddingTop: 140,
     paddingBottom: 60,
   },
-  sectionTitle: { fontSize: 16, fontWeight: '800', color: colors.textDark, marginBottom: spacing.md },
-  empty: { fontSize: 13, color: colors.textFaint, marginBottom: spacing.md },
+  sectionTitle: { fontSize: 16, fontWeight: '800', color: staticColors.textDark, marginBottom: spacing.md },
+  empty: { fontSize: 13, color: staticColors.textFaint, marginBottom: spacing.md },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
@@ -280,14 +332,13 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     padding: spacing.xl,
   },
-  modalTitle: { fontSize: 16, fontWeight: '800', color: colors.textDark, marginBottom: spacing.md },
+  modalTitle: { fontSize: 16, fontWeight: '800', color: staticColors.textDark, marginBottom: spacing.md },
   eventCard: {
     width: 220,
     height: 130,
     borderRadius: radii.lg,
     marginRight: spacing.md,
     overflow: 'hidden',
-    backgroundColor: colors.orangeLight,
   },
   eventCardText: {
     position: 'absolute',
@@ -298,21 +349,20 @@ const styles = StyleSheet.create({
   eventTitle: { fontWeight: '800', fontSize: 14, color: '#fff' },
   eventMeta: { fontSize: 11, color: 'rgba(255,255,255,0.85)', marginTop: 4 },
   reminderBanner: {
-    backgroundColor: colors.orangeLight,
     borderRadius: radii.md,
     padding: spacing.md,
     marginBottom: spacing.md,
   },
-  reminderTitle: { fontWeight: '700', fontSize: 13, color: colors.orangeDark },
-  reminderMeta: { fontSize: 11, color: colors.textLight, marginTop: 2 },
-  reminderText: { fontSize: 12, color: colors.textMuted, marginTop: 4 },
+  reminderTitle: { fontWeight: '700', fontSize: 13 },
+  reminderMeta: { fontSize: 11, color: staticColors.textLight, marginTop: 2 },
+  reminderText: { fontSize: 12, color: staticColors.textMuted, marginTop: 4 },
   notifCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: colors.cardBorder,
+    borderColor: staticColors.cardBorder,
     borderRadius: radii.md,
     padding: spacing.md,
     marginBottom: spacing.sm,
@@ -321,10 +371,29 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: radii.sm,
-    backgroundColor: colors.orangeDark,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  notifTitle: { fontWeight: '700', fontSize: 13, color: colors.textDark },
-  notifMessage: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  notifTitle: { fontWeight: '700', fontSize: 13, color: staticColors.textDark },
+  notifMessage: { fontSize: 12, color: staticColors.textMuted, marginTop: 2 },
+  programmeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: staticColors.cardBorder,
+    borderRadius: radii.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  programmeDay: {
+    borderRadius: radii.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    minWidth: 78,
+    alignItems: 'center',
+  },
+  programmeDayText: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
+  programmeTitle: { fontWeight: '700', fontSize: 13, color: staticColors.textDark },
+  programmeHoraires: { fontSize: 12, color: staticColors.textMuted, marginTop: 2 },
 });

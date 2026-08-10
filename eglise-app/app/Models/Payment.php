@@ -21,6 +21,7 @@ class Payment extends Model
         'telephone',
         'statut',
         'reference',
+        'provider_reference',
     ];
 
     public function user()

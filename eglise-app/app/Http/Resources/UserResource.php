@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Eglise;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -13,6 +14,8 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'eglise_id' => $this->eglise_id,
             'eglise_nom' => $this->eglise?->nom,
+            'eglise_features' => $this->eglise?->featuresArray() ?? array_fill_keys(Eglise::FEATURES, true),
+            'eglise_theme' => $this->eglise?->themeArray(),
             'member_id' => $this->member_id,
             'nom' => $this->nom,
             'prenom' => $this->prenom,

@@ -61,6 +61,10 @@ class AuthController extends Controller
             'role' => 'membre',
         ]);
 
+        // La carte de membre reste inactive tant qu'un admin ne l'a pas
+        // activée explicitement — sauf si l'église avait déjà importé ses
+        // informations de carte à l'avance (import CSV), auquel cas
+        // l'activation a déjà été décidée par l'admin au moment de l'import.
         $pending = CarteImport::where('email', $user->email)->where('eglise_id', $user->eglise_id)->first();
 
         if ($pending) {

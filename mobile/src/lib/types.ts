@@ -1,9 +1,30 @@
 export type Role = 'super_admin' | 'admin_eglise' | 'membre';
 
+export type EgliseFeatures = {
+  evenements: boolean;
+  agenda: boolean;
+  carte: boolean;
+  livres: boolean;
+  avantages: boolean;
+  notifications: boolean;
+  direct: boolean;
+  programme: boolean;
+};
+
+export type EgliseTheme = {
+  couleur_primaire: string | null;
+  couleur_primaire_sombre: string | null;
+  couleur_entete: string | null;
+  couleur_primaire_claire: string | null;
+  couleur_bordure: string | null;
+};
+
 export type User = {
   id: number;
   eglise_id: number | null;
   eglise_nom: string | null;
+  eglise_features: EgliseFeatures;
+  eglise_theme: EgliseTheme | null;
   member_id: string | null;
   nom: string;
   prenom: string;
@@ -32,6 +53,8 @@ export type Eglise = {
   motif_refus: string | null;
   approuvee_at: string | null;
   created_at: string;
+  features: EgliseFeatures;
+  theme: EgliseTheme;
 };
 
 export type GlobalStats = {
@@ -74,7 +97,7 @@ export type Payment = {
   livre_id: number | null;
   produit: string;
   montant: number;
-  methode: 'wave' | 'orange' | 'mtn' | 'moov' | 'card';
+  methode: 'wave' | 'orange' | 'mtn' | 'moov' | 'card' | null;
   telephone: string | null;
   statut: 'en_attente' | 'reussi' | 'echoue';
   reference: string;
@@ -94,6 +117,14 @@ export type CardBenefit = {
   id: number;
   titre: string;
   description: string | null;
+};
+
+export type ProgrammeItem = {
+  id: number;
+  jour: string;
+  titre: string;
+  horaires: string;
+  ordre: number;
 };
 
 export type ChurchNotification = {

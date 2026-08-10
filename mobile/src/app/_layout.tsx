@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppFrame } from '@/components/AppFrame';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
 import { registerForPushNotifications } from '@/lib/push-notifications';
+import { ThemeProvider } from '@/lib/theme-context';
 
 function PushNotificationsRegistrar() {
   const { user } = useAuth();
@@ -26,11 +27,13 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <StatusBar style="light" />
-          <PushNotificationsRegistrar />
-          <AppFrame>
-            <Slot />
-          </AppFrame>
+          <ThemeProvider>
+            <StatusBar style="light" />
+            <PushNotificationsRegistrar />
+            <AppFrame>
+              <Slot />
+            </AppFrame>
+          </ThemeProvider>
         </AuthProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

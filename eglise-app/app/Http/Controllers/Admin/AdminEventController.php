@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\PushToken;
+use App\Rules\ValidImage;
 use App\Services\ExpoPushService;
 use Illuminate\Http\Request;
 
@@ -30,7 +31,7 @@ class AdminEventController extends Controller
         $data = $request->validate([
             'titre'           => ['required', 'string', 'max:255'],
             'description'     => ['nullable', 'string'],
-            'image'           => ['nullable', 'image', 'max:4096'],
+            'image'           => ['nullable', new ValidImage, 'max:4096'],
             'date_evenement'  => ['required', 'date', 'after_or_equal:today'],
             'heure_debut'     => ['nullable', 'string'],
             'heure_fin'       => ['nullable', 'string'],
@@ -68,7 +69,7 @@ class AdminEventController extends Controller
         $data = $request->validate([
             'titre'           => ['required', 'string', 'max:255'],
             'description'     => ['nullable', 'string'],
-            'image'           => ['nullable', 'image', 'max:4096'],
+            'image'           => ['nullable', new ValidImage, 'max:4096'],
             'date_evenement'  => ['required', 'date', 'after_or_equal:today'],
             'heure_debut'     => ['nullable', 'string'],
             'heure_fin'       => ['nullable', 'string'],

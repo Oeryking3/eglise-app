@@ -22,6 +22,8 @@ class EgliseResource extends JsonResource
             'motif_refus' => $this->motif_refus,
             'approuvee_at' => $this->approuvee_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
+            'features' => $this->featuresArray(),
+            'theme' => $this->themeArray(),
         ];
     }
 }

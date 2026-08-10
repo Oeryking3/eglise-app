@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { CardPattern } from '@/components/CardPattern';
 import { HeaderWithBack } from '@/components/HeaderWithBack';
 import { api } from '@/lib/api';
 import { formatDate } from '@/lib/format';
+import { useThemeColors } from '@/lib/theme-context';
 import type { CardBenefit, User } from '@/lib/types';
-import { colors, radii, spacing } from '@/theme/tokens';
+import { colors as staticColors, radii, spacing } from '@/theme/tokens';
 
 type CardResponse = {
   user: User;
@@ -12,6 +14,7 @@ type CardResponse = {
 };
 
 export default function CarteScreen() {
+  const colors = useThemeColors();
   const { data, isLoading } = useQuery({
     queryKey: ['carte'],
     queryFn: async () => (await api.get<CardResponse>('/carte')).data,
@@ -19,6 +22,7 @@ export default function CarteScreen() {
 
   const benefits = data ? (Array.isArray(data.benefits) ? data.benefits : data.benefits.data) : [];
   const user = data?.user;
+  const showAvantages = user?.eglise_features.avantages ?? true;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -26,77 +30,90 @@ export default function CarteScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {isLoading || !user ? (
           <ActivityIndicator style={{ marginTop: 40 }} color={colors.orange} />
-        ) : user.carte_est_valide ? (
-          <>
-            <View style={styles.card}>
-              <Text style={styles.cardBadge}>CARTE DE MEMBRE</Text>
-              {user.groupe_sanguin ? (
-                <View style={styles.bloodChip}>
-                  <Text style={styles.bloodChipText}>{user.groupe_sanguin}</Text>
-                </View>
-              ) : null}
-              <View style={styles.cardBody}>
-                {user.carte_photo_url ? (
-                  <Image source={{ uri: user.carte_photo_url }} style={styles.photo} />
-                ) : (
-                  <View style={styles.photoPlaceholder}>
-                    <Text style={styles.photoInitials}>
-                      {user.prenom[0]}
-                      {user.nom[0]}
-                    </Text>
-                  </View>
-                )}
-                <View style={{ flex: 1 }}>
-                  <Row label="Nom" value={user.nom} />
-                  <Row label="Prénom" value={user.prenom} />
-                  <Row label="Date de naissance" value={formatDate(user.date_naissance)} />
-                  <Row label="Sexe" value={user.sexe ?? '—'} />
-                  <Row label="Lieu de résidence" value={user.lieu_residence ?? '—'} />
-                  <Row label="Église" value={user.eglise_nom?.toUpperCase() ?? '—'} />
-                </View>
-              </View>
-              {user.carte_expiration ? (
-                <Text style={styles.footer}>Valide jusqu'au {formatDate(user.carte_expiration)}</Text>
-              ) : null}
-            </View>
-
-            <Text style={styles.sectionTitle}>Tes avantages</Text>
-            {benefits.length === 0 ? (
-              <Text style={styles.empty}>Aucun avantage pour le moment.</Text>
-            ) : (
-              benefits.map((b) => (
-                <View key={b.id} style={styles.benefitCard}>
-                  <Text style={styles.benefitTitle}>{b.titre}</Text>
-                  {b.description ? <Text style={styles.benefitDesc}>{b.description}</Text> : null}
-                </View>
-              ))
-            )}
-          </>
         ) : (
-          <View style={styles.inactive}>
-            <Text style={styles.inactiveTitle}>{user.eglise_nom ?? 'Église'}</Text>
-            <Text style={styles.inactiveStatus}>
-              {!user.carte_membre
-                ? 'Carte non activée'
-                : user.carte_expiration
-                  ? `Carte expirée le ${formatDate(user.carte_expiration)}`
-                  : 'Carte désactivée'}
-            </Text>
-            <Text style={styles.inactiveHint}>
-              Contacte un administrateur de l'église pour activer ou renouveler ta carte de membre.
-            </Text>
-          </View>
+          <>
+            <Card user={user} colors={colors} />
+
+            {!user.carte_est_valide ? (
+              <Text style={styles.inactiveHint}>
+                {!user.carte_membre
+                  ? 'Ta carte n\'a pas encore été activée.'
+                  : user.carte_expiration
+                    ? `Ta carte a expiré le ${formatDate(user.carte_expiration)}.`
+                    : 'Ta carte a été désactivée.'}{' '}
+                Contacte un administrateur de l'église pour l'activer ou la renouveler.
+              </Text>
+            ) : null}
+
+            {user.carte_est_valide && showAvantages ? (
+              <>
+                <Text style={styles.sectionTitle}>Tes avantages</Text>
+                {benefits.length === 0 ? (
+                  <Text style={styles.empty}>Aucun avantage pour le moment.</Text>
+                ) : (
+                  benefits.map((b) => (
+                    <View key={b.id} style={styles.benefitCard}>
+                      <Text style={styles.benefitTitle}>{b.titre}</Text>
+                      {b.description ? <Text style={styles.benefitDesc}>{b.description}</Text> : null}
+                    </View>
+                  ))
+                )}
+              </>
+            ) : null}
+          </>
         )}
       </ScrollView>
     </View>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+const PLACEHOLDER = '...';
+
+function Card({ user, colors }: { user: User; colors: ReturnType<typeof useThemeColors> }) {
+  const active = user.carte_est_valide;
+
+  return (
+    <View style={styles.card}>
+      <CardPattern />
+
+      <Text style={[styles.cardBadge, { backgroundColor: colors.orange }]}>CARTE DE MEMBRE</Text>
+
+      {active && user.groupe_sanguin ? (
+        <View style={[styles.bloodChip, { backgroundColor: colors.orange }]}>
+          <Text style={styles.bloodChipText}>{user.groupe_sanguin}</Text>
+        </View>
+      ) : null}
+
+      <View style={styles.cardBody}>
+        {active && user.carte_photo_url ? (
+          <Image source={{ uri: user.carte_photo_url }} style={styles.photo} />
+        ) : (
+          <View style={[styles.photoPlaceholder, { backgroundColor: colors.orangeDark }]}>
+            <Text style={styles.photoInitials}>{active ? `${user.prenom[0]}${user.nom[0]}` : PLACEHOLDER}</Text>
+          </View>
+        )}
+        <View style={{ flex: 1 }}>
+          <Row label="Nom" value={active ? user.nom : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
+          <Row label="Prénom" value={active ? user.prenom : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
+          <Row label="Date de naissance" value={active ? formatDate(user.date_naissance) : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
+          <Row label="Sexe" value={active ? user.sexe ?? '—' : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
+          <Row label="Lieu de résidence" value={active ? user.lieu_residence ?? '—' : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
+          <Row label="Église" value={active ? user.eglise_nom?.toUpperCase() ?? '—' : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
+        </View>
+      </View>
+
+      {active && user.carte_expiration ? (
+        <Text style={[styles.footer, { color: colors.orangeDark }]}>Valide jusqu'au {formatDate(user.carte_expiration)}</Text>
+      ) : null}
+    </View>
+  );
+}
+
+function Row({ label, value, labelColor, valueColor }: { label: string; value: string; labelColor: string; valueColor: string }) {
   return (
     <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
+      <Text style={[styles.rowLabel, { color: labelColor }]}>{label}</Text>
+      <Text style={[styles.rowValue, { color: valueColor }]}>{value}</Text>
     </View>
   );
 }
@@ -104,75 +121,77 @@ function Row({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   content: { padding: spacing.xl, paddingBottom: 60 },
   card: {
-    backgroundColor: colors.orangeLight,
+    position: 'relative',
+    overflow: 'hidden',
     borderRadius: radii.xl,
-    borderWidth: 1,
-    borderColor: colors.orangeBorder,
     padding: spacing.lg,
+    paddingLeft: spacing.xl,
+    paddingTop: spacing.xl,
     marginBottom: spacing.xl,
+    width: '100%',
+    maxWidth: 460,
+    alignSelf: 'center',
   },
   cardBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.orangeDark,
+    alignSelf: 'center',
+    textAlign: 'center',
     color: '#fff',
-    fontSize: 11,
+    fontSize: 18,
     fontWeight: '800',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: radii.pill,
-    marginBottom: spacing.md,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: radii.md,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    overflow: 'hidden',
   },
   bloodChip: {
     position: 'absolute',
-    top: spacing.lg,
-    right: spacing.lg,
-    backgroundColor: colors.orangeDark,
-    borderRadius: radii.pill,
-    width: 34,
-    height: 34,
+    top: 92,
+    right: -8,
+    borderRadius: radii.lg,
+    width: 56,
+    height: 56,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bloodChipText: { color: '#fff', fontWeight: '800', fontSize: 11 },
+  bloodChipText: { color: '#fff', fontWeight: '800', fontSize: 17 },
   cardBody: { flexDirection: 'row', gap: spacing.lg },
-  photo: { width: 72, height: 72, borderRadius: radii.md, backgroundColor: '#fff' },
+  photo: { width: 128, height: 158, borderRadius: radii.sm, backgroundColor: '#fff' },
   photoPlaceholder: {
-    width: 72,
-    height: 72,
-    borderRadius: radii.md,
-    backgroundColor: colors.orangeDark,
+    width: 128,
+    height: 158,
+    borderRadius: radii.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  photoInitials: { color: '#fff', fontWeight: '800', fontSize: 20 },
-  row: { marginBottom: 4 },
-  rowLabel: { fontSize: 9, color: colors.textLight, textTransform: 'uppercase', fontWeight: '700' },
-  rowValue: { fontSize: 12, color: colors.textDark, fontWeight: '600' },
+  photoInitials: { color: '#fff', fontWeight: '800', fontSize: 26 },
+  row: { marginBottom: 10 },
+  rowLabel: { fontSize: 11, fontWeight: '500' },
+  rowValue: { fontSize: 15, fontWeight: '800', marginTop: 1 },
   footer: {
     marginTop: spacing.md,
     fontSize: 11,
-    color: colors.orangeDark,
     fontWeight: '700',
   },
-  sectionTitle: { fontSize: 16, fontWeight: '800', color: colors.textDark, marginBottom: spacing.md },
-  empty: { fontSize: 13, color: colors.textFaint },
+  sectionTitle: { fontSize: 16, fontWeight: '800', color: staticColors.textDark, marginBottom: spacing.md },
+  empty: { fontSize: 13, color: staticColors.textFaint },
   benefitCard: {
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: colors.cardBorder,
+    borderColor: staticColors.cardBorder,
     borderRadius: radii.md,
     padding: spacing.md,
     marginBottom: spacing.sm,
   },
-  benefitTitle: { fontWeight: '700', fontSize: 13, color: colors.textDark },
-  benefitDesc: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-  inactive: {
-    backgroundColor: '#eee',
-    borderRadius: radii.xl,
-    padding: spacing.xxl,
-    alignItems: 'center',
+  benefitTitle: { fontWeight: '700', fontSize: 13, color: staticColors.textDark },
+  benefitDesc: { fontSize: 12, color: staticColors.textMuted, marginTop: 2 },
+  inactiveHint: {
+    fontSize: 12,
+    color: staticColors.textLight,
+    textAlign: 'center',
+    lineHeight: 18,
+    marginTop: -spacing.md,
+    marginBottom: spacing.xl,
   },
-  inactiveTitle: { fontWeight: '800', fontSize: 16, color: colors.textDark, marginBottom: spacing.md },
-  inactiveStatus: { fontWeight: '700', fontSize: 14, color: colors.error, marginBottom: spacing.md },
-  inactiveHint: { fontSize: 12, color: colors.textLight, textAlign: 'center', lineHeight: 18 },
 });

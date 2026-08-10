@@ -6,15 +6,13 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useActionSheet } from '@/components/ActionSheet';
-import { DateField } from '@/components/DateField';
+import { BirthDateField } from '@/components/BirthDateField';
 import { IconField } from '@/components/IconField';
 import { PillButton } from '@/components/PillButton';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { colors, spacing } from '@/theme/tokens';
 import type { Eglise } from '@/lib/types';
-
-const TODAY = new Date(new Date().setHours(0, 0, 0, 0));
 
 export default function SignupScreen() {
   const { register } = useAuth();
@@ -123,11 +121,10 @@ export default function SignupScreen() {
               value={form.password}
               onChangeText={set('password')}
             />
-            <DateField
-              label="Date de naissance"
+            <BirthDateField
+              icon={<Feather name="calendar" size={18} color={colors.orange} />}
               value={form.date_naissance}
               onChange={set('date_naissance')}
-              maximumDate={TODAY}
             />
             <Pressable onPress={openSexePicker}>
               <View pointerEvents="none">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\EventResource;
 use App\Models\Event;
 use App\Models\PushToken;
+use App\Rules\ValidImage;
 use App\Services\ExpoPushService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -103,7 +104,7 @@ class EventController extends Controller
         return $request->validate([
             'titre' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:4096'],
+            'image' => ['nullable', new ValidImage, 'max:4096'],
             'date_evenement' => ['required', 'date', 'after_or_equal:today'],
             'heure_debut' => ['nullable', 'string'],
             'heure_fin' => ['nullable', 'string'],

@@ -3,7 +3,8 @@ import { router, usePathname } from 'expo-router';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../lib/auth-context';
-import { colors, spacing } from '../theme/tokens';
+import { useThemeColors } from '../lib/theme-context';
+import { colors as staticColors, spacing } from '../theme/tokens';
 
 const TABS = [
   { icon: 'home', label: 'Églises', href: '/(super-admin)' },
@@ -14,6 +15,7 @@ const TABS = [
 export function SuperAdminTabBar() {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const colors = useThemeColors();
 
   const onLogout = async () => {
     await logout();
@@ -26,13 +28,13 @@ export function SuperAdminTabBar() {
         const active = tab.href === '/(super-admin)' ? pathname === '/(super-admin)' || pathname === '/' : pathname.startsWith(tab.href);
         return (
           <Pressable key={tab.href} style={styles.tab} onPress={() => router.navigate(tab.href as never)}>
-            <Feather name={tab.icon} size={18} color={active ? colors.orange : colors.textFaint} />
-            <Text style={[styles.label, active && styles.labelActive]}>{tab.label}</Text>
+            <Feather name={tab.icon} size={18} color={active ? colors.orange : staticColors.textFaint} />
+            <Text style={[styles.label, active && { color: colors.orange }]}>{tab.label}</Text>
           </Pressable>
         );
       })}
       <Pressable style={styles.tab} onPress={onLogout}>
-        <Feather name="log-out" size={18} color={colors.textFaint} />
+        <Feather name="log-out" size={18} color={staticColors.textFaint} />
         <Text style={styles.label}>Sortir</Text>
       </Pressable>
     </SafeAreaView>
@@ -44,7 +46,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: colors.cardBorder,
+    borderTopColor: staticColors.cardBorder,
   },
   tab: {
     flex: 1,
@@ -52,6 +54,5 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     paddingBottom: 6,
   },
-  label: { fontSize: 9, fontWeight: '700', color: colors.textFaint, marginTop: 2 },
-  labelActive: { color: colors.orange },
+  label: { fontSize: 9, fontWeight: '700', color: staticColors.textFaint, marginTop: 2 },
 });

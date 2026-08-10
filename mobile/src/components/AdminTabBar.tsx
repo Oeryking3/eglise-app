@@ -4,29 +4,40 @@ import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../lib/auth-context';
-import { colors, radii, spacing } from '../theme/tokens';
+import { useThemeColors } from '../lib/theme-context';
+import type { EgliseFeatures } from '../lib/types';
+import { colors as staticColors, radii, spacing } from '../theme/tokens';
 
 const TABS = [
-  { icon: 'home', label: 'Accueil', href: '/(admin)' },
-  { icon: 'calendar', label: 'Évén.', href: '/(admin)/evenements' },
-  { icon: 'credit-card', label: 'Paiem.', href: '/(admin)/paiements' },
-  { icon: 'users', label: 'Membres', href: '/(admin)/membres' },
+  { icon: 'home', label: 'Accueil', href: '/(admin)', feature: null },
+  { icon: 'calendar', label: 'Évén.', href: '/(admin)/evenements', feature: 'evenements' },
+  { icon: 'credit-card', label: 'Paiem.', href: '/(admin)/paiements', feature: 'livres' },
+  { icon: 'users', label: 'Membres', href: '/(admin)/membres', feature: null },
 ] as const;
 
 const MORE_LINKS = [
-  { icon: 'bell', label: 'Notifications', href: '/(admin)/notifications' },
-  { icon: 'book-open', label: 'Livres', href: '/(admin)/livres' },
-  { icon: 'radio', label: 'Direct', href: '/(admin)/direct' },
-  { icon: 'gift', label: 'Avantages', href: '/(admin)/avantages' },
+  { icon: 'bell', label: 'Notifications', href: '/(admin)/notifications', feature: 'notifications' },
+  { icon: 'book-open', label: 'Livres', href: '/(admin)/livres', feature: 'livres' },
+  { icon: 'radio', label: 'Direct', href: '/(admin)/direct', feature: 'direct' },
+  { icon: 'gift', label: 'Avantages', href: '/(admin)/avantages', feature: 'avantages' },
+  { icon: 'clock', label: 'Programme', href: '/(admin)/programme', feature: 'programme' },
 ] as const;
 
 export function AdminTabBar() {
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const colors = useThemeColors();
   const [moreOpen, setMoreOpen] = useState(false);
 
+  const features: EgliseFeatures | undefined = user?.eglise_features;
+  const hasFeature = (feature: string | null) => feature === null || features?.[feature as keyof EgliseFeatures] !== false;
+
+  const tabs = TABS.filter((t) => hasFeature(t.feature));
+  const moreLinks = MORE_LINKS.filter((l) => hasFeature(l.feature));
+  const showCartes = hasFeature('carte');
+
   const isMoreActive =
-    MORE_LINKS.some((l) => pathname.startsWith(l.href)) || pathname.startsWith('/(admin)/cartes');
+    moreLinks.some((l) => pathname.startsWith(l.href)) || (showCartes && pathname.startsWith('/(admin)/cartes'));
 
   const onLogout = async () => {
     setMoreOpen(false);
@@ -37,25 +48,25 @@ export function AdminTabBar() {
   return (
     <>
       <SafeAreaView edges={['bottom']} style={styles.bar}>
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const active = tab.href === '/(admin)' ? pathname === '/(admin)' || pathname === '/' : pathname.startsWith(tab.href);
           return (
             <Pressable key={tab.href} style={styles.tab} onPress={() => router.navigate(tab.href as never)}>
-              <Feather name={tab.icon} size={18} color={active ? colors.orange : colors.textFaint} />
-              <Text style={[styles.label, active && styles.labelActive]}>{tab.label}</Text>
+              <Feather name={tab.icon} size={18} color={active ? colors.orange : staticColors.textFaint} />
+              <Text style={[styles.label, active && { color: colors.orange }]}>{tab.label}</Text>
             </Pressable>
           );
         })}
         <Pressable style={styles.tab} onPress={() => setMoreOpen(true)}>
-          <Feather name="more-horizontal" size={18} color={isMoreActive ? colors.orange : colors.textFaint} />
-          <Text style={[styles.label, isMoreActive && styles.labelActive]}>Plus</Text>
+          <Feather name="more-horizontal" size={18} color={isMoreActive ? colors.orange : staticColors.textFaint} />
+          <Text style={[styles.label, isMoreActive && { color: colors.orange }]}>Plus</Text>
         </Pressable>
       </SafeAreaView>
 
       <Modal visible={moreOpen} transparent animationType="fade" onRequestClose={() => setMoreOpen(false)}>
         <Pressable style={styles.overlay} onPress={() => setMoreOpen(false)}>
           <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-            {MORE_LINKS.map((link) => (
+            {moreLinks.map((link) => (
               <Pressable
                 key={link.href}
                 style={styles.sheetItem}
@@ -64,26 +75,28 @@ export function AdminTabBar() {
                   router.navigate(link.href as never);
                 }}
               >
-                <Feather name={link.icon} size={18} color={colors.textDark} />
+                <Feather name={link.icon} size={18} color={staticColors.textDark} />
                 <Text style={styles.sheetLabel}>{link.label}</Text>
               </Pressable>
             ))}
-            <Pressable
-              style={styles.sheetItem}
-              onPress={() => {
-                setMoreOpen(false);
-                router.navigate('/(admin)/cartes' as never);
-              }}
-            >
-              <MaterialCommunityIcons name="card-account-details-outline" size={18} color={colors.textDark} />
-              <Text style={styles.sheetLabel}>Cartes de membre</Text>
-            </Pressable>
+            {showCartes ? (
+              <Pressable
+                style={styles.sheetItem}
+                onPress={() => {
+                  setMoreOpen(false);
+                  router.navigate('/(admin)/cartes' as never);
+                }}
+              >
+                <MaterialCommunityIcons name="card-account-details-outline" size={18} color={staticColors.textDark} />
+                <Text style={styles.sheetLabel}>Cartes de membre</Text>
+              </Pressable>
+            ) : null}
             <Pressable style={styles.sheetItem} onPress={onLogout}>
-              <Feather name="log-out" size={18} color={colors.textDark} />
+              <Feather name="log-out" size={18} color={staticColors.textDark} />
               <Text style={styles.sheetLabel}>Sortir</Text>
             </Pressable>
-            <Pressable style={styles.closeBtn} onPress={() => setMoreOpen(false)}>
-              <Text style={styles.closeBtnText}>Fermer</Text>
+            <Pressable style={[styles.closeBtn, { backgroundColor: colors.orangeLight }]} onPress={() => setMoreOpen(false)}>
+              <Text style={[styles.closeBtnText, { color: colors.orangeDark }]}>Fermer</Text>
             </Pressable>
           </Pressable>
         </Pressable>
@@ -97,7 +110,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: colors.cardBorder,
+    borderTopColor: staticColors.cardBorder,
   },
   tab: {
     flex: 1,
@@ -105,8 +118,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     paddingBottom: 6,
   },
-  label: { fontSize: 9, fontWeight: '700', color: colors.textFaint, marginTop: 2 },
-  labelActive: { color: colors.orange },
+  label: { fontSize: 9, fontWeight: '700', color: staticColors.textFaint, marginTop: 2 },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
@@ -129,13 +141,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     gap: spacing.md,
   },
-  sheetLabel: { fontSize: 15, fontWeight: '700', color: colors.textDark },
+  sheetLabel: { fontSize: 15, fontWeight: '700', color: staticColors.textDark },
   closeBtn: {
     marginTop: spacing.md,
     alignItems: 'center',
     paddingVertical: spacing.md,
-    backgroundColor: colors.orangeLight,
     borderRadius: radii.md,
   },
-  closeBtnText: { fontWeight: '800', color: colors.orangeDark },
+  closeBtnText: { fontWeight: '800' },
 });

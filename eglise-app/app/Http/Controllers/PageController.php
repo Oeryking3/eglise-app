@@ -47,9 +47,11 @@ class PageController extends Controller
             ->where('notifie', false)
             ->get();
 
-        // On les marque comme notifiés pour ne pas les réafficher aux prochaines connexions
+        // Un rappel du jour même reste visible à chaque connexion tant que sa
+        // journée n'est pas terminée — seuls les rappels de jours précédents
+        // sont marqués comme notifiés, pour ne plus jamais réapparaître après coup.
         AgendaItem::where('user_id', $user->id)
-            ->where('date_rappel', '<=', now()->toDateString())
+            ->where('date_rappel', '<', now()->toDateString())
             ->where('notifie', false)
             ->update(['notifie' => true]);
 

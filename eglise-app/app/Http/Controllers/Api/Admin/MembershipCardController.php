@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Models\CarteImport;
 use App\Models\Scopes\EgliseScope;
 use App\Models\User;
+use App\Rules\ValidImage;
 use App\Services\TenantContext;
 use Illuminate\Http\Request;
 
@@ -31,7 +32,7 @@ class MembershipCardController extends Controller
         $this->authorize('update', $member);
 
         $data = $request->validate([
-            'carte_photo' => ['nullable', 'image', 'max:4096'],
+            'carte_photo' => ['nullable', new ValidImage, 'max:4096'],
             'date_naissance' => ['nullable', 'date'],
             'sexe' => ['nullable', 'in:M,F'],
             'groupe_sanguin' => ['nullable', 'string', 'max:5'],
@@ -46,6 +47,24 @@ class MembershipCardController extends Controller
         }
 
         $member->update($data);
+
+        return response()->json(['member' => new UserResource($member)]);
+    }
+
+    public function activate(User $member)
+    {
+        $this->authorize('update', $member);
+
+        $member->update(['carte_membre' => true]);
+
+        return response()->json(['member' => new UserResource($member)]);
+    }
+
+    public function deactivate(User $member)
+    {
+        $this->authorize('update', $member);
+
+        $member->update(['carte_membre' => false]);
 
         return response()->json(['member' => new UserResource($member)]);
     }

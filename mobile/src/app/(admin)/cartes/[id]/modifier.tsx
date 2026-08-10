@@ -20,7 +20,7 @@ export default function AdminCarteModifierScreen() {
 
   const { data: member, isLoading } = useQuery({
     queryKey: ['admin-carte', id],
-    queryFn: async () => (await api.get<User>(`/admin/cartes/${id}`)).data,
+    queryFn: async () => (await api.get<{ data: User }>(`/admin/cartes/${id}`)).data.data,
   });
 
   const [dateNaissance, setDateNaissance] = useState('');

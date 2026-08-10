@@ -71,7 +71,7 @@ export default function AdminPaiementsScreen() {
             <View key={p.id} style={styles.card}>
               <Text style={styles.title}>{p.user ? `${p.user.prenom} ${p.user.nom}` : 'Membre inconnu'}</Text>
               <Text style={styles.meta}>
-                {p.produit} · {p.montant.toLocaleString('fr-FR')} FCFA · {p.methode.toUpperCase()}
+                {p.produit} · {p.montant.toLocaleString('fr-FR')} FCFA · {p.methode ? p.methode.toUpperCase() : 'Méthode non connue'}
               </Text>
               <Text style={styles.meta}>
                 {formatDateTime(p.created_at)} · Réf: {p.reference}

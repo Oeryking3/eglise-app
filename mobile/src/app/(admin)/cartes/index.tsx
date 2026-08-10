@@ -43,6 +43,24 @@ export default function AdminCartesScreen() {
     ]);
   };
 
+  const onActivate = async (member: User) => {
+    try {
+      await api.post(`/admin/cartes/${member.id}/activer`);
+      queryClient.invalidateQueries({ queryKey: ['admin-cartes'] });
+    } catch (e) {
+      Alert.alert('Erreur', extractErrorMessage(e));
+    }
+  };
+
+  const onDeactivate = async (member: User) => {
+    try {
+      await api.post(`/admin/cartes/${member.id}/desactiver`);
+      queryClient.invalidateQueries({ queryKey: ['admin-cartes'] });
+    } catch (e) {
+      Alert.alert('Erreur', extractErrorMessage(e));
+    }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <AdminPageHeader
@@ -72,6 +90,21 @@ export default function AdminCartesScreen() {
                     style={styles.actionBtn}
                     onPress={() => router.push(`/(admin)/cartes/${m.id}/modifier`)}
                   />
+                  {m.carte_membre ? (
+                    <PillButton
+                      title="Désactiver"
+                      variant="outline"
+                      style={styles.actionBtn}
+                      onPress={() => onDeactivate(m)}
+                    />
+                  ) : (
+                    <PillButton
+                      title="Activer"
+                      variant="primary"
+                      style={styles.actionBtn}
+                      onPress={() => onActivate(m)}
+                    />
+                  )}
                   {m.carte_membre ? (
                     <PillButton
                       title="Supprimer la carte"

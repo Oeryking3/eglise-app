@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing } from '../theme/tokens';
+import { useThemeColors } from '../lib/theme-context';
+import { spacing } from '../theme/tokens';
 
 type Props = {
   title: string;
@@ -10,8 +11,10 @@ type Props = {
 };
 
 export function HeaderWithBack({ title, subtitle, backTo }: Props) {
+  const colors = useThemeColors();
+
   return (
-    <SafeAreaView edges={['top']} style={styles.wrap}>
+    <SafeAreaView edges={['top']} style={[styles.wrap, { backgroundColor: colors.orangeHeader }]}>
       <View style={styles.row}>
         <View style={{ flex: 1 }}>
           <Text style={styles.title}>{title}</Text>
@@ -30,7 +33,6 @@ export function HeaderWithBack({ title, subtitle, backTo }: Props) {
 
 const styles = StyleSheet.create({
   wrap: {
-    backgroundColor: colors.orangeHeader,
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xxl,
   },

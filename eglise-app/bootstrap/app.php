@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureFeatureEnabled;
 use App\Http\Middleware\EnsureUserIsAdminApi;
 use App\Http\Middleware\EnsureUserIsSuperAdminApi;
 use App\Http\Middleware\IsAdmin;
@@ -22,11 +23,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Railway (et la plupart des hébergeurs) terminent le HTTPS sur leur
+        // propre proxy et transmettent la requête en HTTP simple au
+        // conteneur. Sans faire confiance à ce proxy, Laravel génère des
+        // URLs (asset(), url()...) en http:// au lieu de https://.
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'is_admin' => IsAdmin::class,
             'is_admin_api' => EnsureUserIsAdminApi::class,
             'is_super_admin_api' => EnsureUserIsSuperAdminApi::class,
             'require_eglise_context' => RequireEgliseContextForSuperAdmin::class,
+            'feature' => EnsureFeatureEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

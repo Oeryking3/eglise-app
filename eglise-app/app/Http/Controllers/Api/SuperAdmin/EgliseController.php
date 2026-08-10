@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EgliseResource;
 use App\Models\Eglise;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class EgliseController extends Controller
@@ -41,6 +42,37 @@ class EgliseController extends Controller
         }
 
         $eglise->update(['statut' => 'active']);
+
+        return response()->json(['eglise' => new EgliseResource($eglise)]);
+    }
+
+    public function updateFeatures(Request $request, Eglise $eglise)
+    {
+        $data = $request->validate([
+            'features' => ['required', 'array'],
+            'features.*' => ['boolean'],
+        ]);
+
+        $features = array_intersect_key($data['features'], array_flip(Eglise::FEATURES));
+
+        $eglise->update(['features' => array_merge($eglise->featuresArray(), $features)]);
+
+        return response()->json(['eglise' => new EgliseResource($eglise)]);
+    }
+
+    public function updateTheme(Request $request, Eglise $eglise)
+    {
+        $hex = ['nullable', 'regex:/^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$/'];
+
+        $data = $request->validate([
+            'couleur_primaire' => $hex,
+            'couleur_primaire_sombre' => $hex,
+            'couleur_entete' => $hex,
+            'couleur_primaire_claire' => $hex,
+            'couleur_bordure' => $hex,
+        ]);
+
+        $eglise->update($data);
 
         return response()->json(['eglise' => new EgliseResource($eglise)]);
     }

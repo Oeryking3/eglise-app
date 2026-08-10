@@ -74,49 +74,59 @@ Route::prefix('agenda')->name('agenda.')->group(function () {
 Route::middleware(['auth', 'is_admin', 'require_eglise_context'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('evenements', AdminEventController::class)
-        ->parameters(['evenements' => 'event'])
-        ->names('events');
+    Route::middleware('feature:evenements')->group(function () {
+        Route::resource('evenements', AdminEventController::class)
+            ->parameters(['evenements' => 'event'])
+            ->names('events');
+    });
 
-    Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
-    Route::get('notifications/creer', [AdminNotificationController::class, 'create'])->name('notifications.create');
-    Route::post('notifications', [AdminNotificationController::class, 'store'])->name('notifications.store');
-    Route::get('notifications/{notification}/modifier', [AdminNotificationController::class, 'edit'])->name('notifications.edit');
-    Route::put('notifications/{notification}', [AdminNotificationController::class, 'update'])->name('notifications.update');
-    Route::delete('notifications/{notification}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::middleware('feature:notifications')->group(function () {
+        Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+        Route::get('notifications/creer', [AdminNotificationController::class, 'create'])->name('notifications.create');
+        Route::post('notifications', [AdminNotificationController::class, 'store'])->name('notifications.store');
+        Route::get('notifications/{notification}/modifier', [AdminNotificationController::class, 'edit'])->name('notifications.edit');
+        Route::put('notifications/{notification}', [AdminNotificationController::class, 'update'])->name('notifications.update');
+        Route::delete('notifications/{notification}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
+    });
 
-    Route::get('paiements', [AdminPaymentController::class, 'index'])->name('payments.index');
-    Route::put('paiements/{payment}/statut', [AdminPaymentController::class, 'updateStatus'])->name('payments.updateStatus');
-    Route::delete('paiements/{payment}', [AdminPaymentController::class, 'destroy'])->name('payments.destroy');
+    Route::middleware('feature:livres')->group(function () {
+        Route::get('paiements', [AdminPaymentController::class, 'index'])->name('payments.index');
+        Route::put('paiements/{payment}/statut', [AdminPaymentController::class, 'updateStatus'])->name('payments.updateStatus');
+        Route::delete('paiements/{payment}', [AdminPaymentController::class, 'destroy'])->name('payments.destroy');
+
+        Route::prefix('livres')->name('livres.')->group(function () {
+            Route::get('/', [LivreController::class, 'index'])->name('index');
+            Route::get('/creer', [LivreController::class, 'create'])->name('create');
+            Route::post('/', [LivreController::class, 'store'])->name('store');
+            Route::delete('/{livre}', [LivreController::class, 'destroy'])->name('destroy');
+        });
+    });
 
     Route::get('membres', [AdminMemberController::class, 'index'])->name('members.index');
     Route::get('membres/{member}/modifier', [AdminMemberController::class, 'edit'])->name('members.edit');
     Route::put('membres/{member}', [AdminMemberController::class, 'update'])->name('members.update');
     Route::delete('membres/{member}', [AdminMemberController::class, 'destroy'])->name('members.destroy');
 
-    Route::prefix('livres')->name('livres.')->group(function () {
-        Route::get('/', [LivreController::class, 'index'])->name('index');
-        Route::get('/creer', [LivreController::class, 'create'])->name('create');
-        Route::post('/', [LivreController::class, 'store'])->name('store');
-        Route::delete('/{livre}', [LivreController::class, 'destroy'])->name('destroy');
+    Route::middleware('feature:avantages')->group(function () {
+        Route::prefix('avantages')->name('avantages.')->group(function () {
+            Route::get('/', [CardBenefitController::class, 'index'])->name('index');
+            Route::get('/creer', [CardBenefitController::class, 'create'])->name('create');
+            Route::post('/', [CardBenefitController::class, 'store'])->name('store');
+           Route::delete('/{benefit}', [CardBenefitController::class, 'destroy'])->name('destroy');
+    });
     });
 
-    Route::prefix('avantages')->name('avantages.')->group(function () {
-        Route::get('/', [CardBenefitController::class, 'index'])->name('index');
-        Route::get('/creer', [CardBenefitController::class, 'create'])->name('create');
-        Route::post('/', [CardBenefitController::class, 'store'])->name('store');
-       Route::delete('/{benefit}', [CardBenefitController::class, 'destroy'])->name('destroy');
-});
+    Route::middleware('feature:direct')->group(function () {
+        Route::get('direct', [LiveStreamController::class, 'edit'])->name('direct.edit');
+        Route::put('direct', [LiveStreamController::class, 'update'])->name('direct.update');
+    });
 
-    Route::get('direct', [LiveStreamController::class, 'edit'])->name('direct.edit');
-    Route::put('direct', [LiveStreamController::class, 'update'])->name('direct.update');
-
-    
-
-Route::prefix('cartes')->name('cartes.')->group(function () {
+Route::middleware('feature:carte')->prefix('cartes')->name('cartes.')->group(function () {
     Route::get('/', [MembershipCardController::class, 'index'])->name('index');
     Route::get('/{member}/modifier', [MembershipCardController::class, 'edit'])->name('edit');
     Route::put('/{member}', [MembershipCardController::class, 'update'])->name('update');
+    Route::post('/{member}/activer', [MembershipCardController::class, 'activate'])->name('activate');
+    Route::post('/{member}/desactiver', [MembershipCardController::class, 'deactivate'])->name('deactivate');
     Route::delete('/{member}', [MembershipCardController::class, 'destroy'])->name('destroy');
 });
 });

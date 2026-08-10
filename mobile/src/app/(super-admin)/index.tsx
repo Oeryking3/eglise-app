@@ -103,6 +103,12 @@ export default function SuperAdminEglisesScreen() {
                   {e.statut === 'active' ? (
                     <>
                       <PillButton title="Gérer" variant="outline" style={styles.actionBtn} onPress={() => onGerer(e)} />
+                      <PillButton
+                        title="Paramètres"
+                        variant="outline"
+                        style={styles.actionBtn}
+                        onPress={() => router.push(`/(super-admin)/eglises/${e.id}/parametres` as never)}
+                      />
                       <PillButton title="Désactiver" variant="danger" style={styles.actionBtn} onPress={() => onDeactivate(e)} />
                     </>
                   ) : null}

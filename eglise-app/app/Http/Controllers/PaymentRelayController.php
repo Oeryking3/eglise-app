@@ -4,30 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\PaymentController;
 use App\Models\Payment;
-use App\Services\CinetPayService;
+use App\Services\GeniusPayService;
 use Illuminate\Http\Request;
 
 class PaymentRelayController extends Controller
 {
     /**
-     * CinetPay redirige le navigateur (ouvert dans la WebView/WebBrowser de
+     * GeniusPay redirige le navigateur (ouvert dans la WebView/WebBrowser de
      * l'app mobile) vers cette route web après le paiement — un schéma
-     * personnalisé (monapp://...) n'est pas accepté directement par CinetPay
-     * en success_url/failed_url, donc on relaie ici vers le vrai retour app.
+     * personnalisé (monapp://...) n'est pas accepté directement en
+     * success_url/error_url, donc on relaie ici vers le vrai retour app.
      */
-    public function retour(Request $request, PaymentController $paymentController, CinetPayService $cinetpay)
+    public function retour(Request $request, PaymentController $paymentController, GeniusPayService $geniuspay)
     {
         $statut = $request->query('statut', 'echec');
         $mobileReturn = $request->query('mobile_return');
         $paymentId = $request->query('payment_id');
 
-        if ($statut === 'notify') {
-            $payment = Payment::withoutGlobalScopes()->find($paymentId);
-            if ($payment) {
-                $paymentController->refreshStatus($payment, $cinetpay);
-            }
+        $payment = Payment::withoutGlobalScopes()->find($paymentId);
 
-            return response('OK', 200);
+        if ($statut === 'succes' && $payment && $payment->statut === 'en_attente') {
+            $paymentController->refreshStatus($payment, $geniuspay);
         }
 
         if (! $mobileReturn) {
