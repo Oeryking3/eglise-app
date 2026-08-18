@@ -2,6 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
+import * as Linking from 'expo-linking';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -123,6 +124,20 @@ export default function AccueilScreen() {
               <ActivityIndicator style={{ marginTop: 40 }} color={colors.orange} />
             ) : (
               <>
+                {features.direct && data?.live_stream?.actif && data.live_stream.url ? (
+                  <Pressable
+                    style={[styles.liveBanner, { backgroundColor: colors.orangeDark }]}
+                    onPress={() => Linking.openURL(data.live_stream.url!)}
+                  >
+                    <View style={styles.liveDot} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.liveTitle}>En direct maintenant</Text>
+                      <Text style={styles.liveSubtitle}>Appuie pour regarder le culte en direct</Text>
+                    </View>
+                    <Feather name="chevron-right" size={20} color="#fff" />
+                  </Pressable>
+                ) : null}
+
                 {features.evenements ? (
                   <>
                     <Text style={styles.sectionTitle}>Évènements à venir</Text>
@@ -316,6 +331,22 @@ const styles = StyleSheet.create({
     paddingTop: 140,
     paddingBottom: 60,
   },
+  liveBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    borderRadius: radii.md,
+    padding: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  liveDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#fff',
+  },
+  liveTitle: { color: '#fff', fontWeight: '800', fontSize: 14 },
+  liveSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 12, marginTop: 2 },
   sectionTitle: { fontSize: 16, fontWeight: '800', color: staticColors.textDark, marginBottom: spacing.md },
   empty: { fontSize: 13, color: staticColors.textFaint, marginBottom: spacing.md },
   modalOverlay: {

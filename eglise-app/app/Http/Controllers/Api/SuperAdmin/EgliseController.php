@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\EgliseResource;
 use App\Models\Eglise;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class EgliseController extends Controller
@@ -27,6 +28,7 @@ class EgliseController extends Controller
         }
 
         $eglise->update(['statut' => 'desactivee']);
+        Cache::forget('eglises:actives');
 
         foreach ($eglise->users as $user) {
             $user->tokens()->delete();
@@ -42,6 +44,7 @@ class EgliseController extends Controller
         }
 
         $eglise->update(['statut' => 'active']);
+        Cache::forget('eglises:actives');
 
         return response()->json(['eglise' => new EgliseResource($eglise)]);
     }
@@ -56,6 +59,7 @@ class EgliseController extends Controller
         $features = array_intersect_key($data['features'], array_flip(Eglise::FEATURES));
 
         $eglise->update(['features' => array_merge($eglise->featuresArray(), $features)]);
+        Cache::forget('eglises:actives');
 
         return response()->json(['eglise' => new EgliseResource($eglise)]);
     }
@@ -73,12 +77,15 @@ class EgliseController extends Controller
         ]);
 
         $eglise->update($data);
+        Cache::forget('eglises:actives');
 
         return response()->json(['eglise' => new EgliseResource($eglise)]);
     }
 
     public function destroy(Eglise $eglise)
     {
+        Cache::forget('eglises:actives');
+
         DB::transaction(function () use ($eglise) {
             foreach ($eglise->users as $user) {
                 $user->tokens()->delete();

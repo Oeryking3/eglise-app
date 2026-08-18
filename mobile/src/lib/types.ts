@@ -140,6 +140,13 @@ export type LiveStream = {
   embed_url: string | null;
 };
 
+export type LiveStreamLog = {
+  id: number;
+  url: string;
+  started_at: string | null;
+  ended_at: string | null;
+};
+
 export type Paginated<T> = {
   data: T[];
   meta: {

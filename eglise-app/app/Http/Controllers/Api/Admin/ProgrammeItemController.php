@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProgrammeItemResource;
 use App\Models\ProgrammeItem;
+use App\Services\TenantContext;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ProgrammeItemController extends Controller
 {
@@ -24,6 +26,7 @@ class ProgrammeItemController extends Controller
         ]);
 
         $item = ProgrammeItem::create($data);
+        $this->forgetCache();
 
         return response()->json(['item' => new ProgrammeItemResource($item)], 201);
     }
@@ -38,6 +41,7 @@ class ProgrammeItemController extends Controller
         ]);
 
         $item->update($data);
+        $this->forgetCache();
 
         return response()->json(['item' => new ProgrammeItemResource($item)]);
     }
@@ -45,7 +49,13 @@ class ProgrammeItemController extends Controller
     public function destroy(ProgrammeItem $item)
     {
         $item->delete();
+        $this->forgetCache();
 
         return response()->json(['message' => 'Élément du programme supprimé.']);
+    }
+
+    private function forgetCache(): void
+    {
+        Cache::forget('programme:' . app(TenantContext::class)->egliseId());
     }
 }

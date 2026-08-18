@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Eglise;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class EgliseRequestController extends Controller
@@ -51,6 +52,8 @@ class EgliseRequestController extends Controller
 
             return $admin;
         });
+
+        Cache::forget('eglises:actives');
 
         return response()->json([
             'eglise' => new EgliseResource($eglise->fresh()),
