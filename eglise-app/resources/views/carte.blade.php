@@ -24,52 +24,23 @@
 
     @if ($user->carte_est_valide)
       <div class="member-id-card">
-        <div class="member-id-header">
-          <div class="member-id-badge">CARTE DE MEMBRE</div>
-          @if ($user->groupe_sanguin)
-            <div class="member-id-blood">{{ $user->groupe_sanguin }}</div>
+        <div class="member-id-name">{{ $user->prenom }} {{ $user->nom }}</div>
+        <div class="member-id-church">{{ strtoupper($user->eglise->nom ?? 'ÉGLISE') }}</div>
+        <div class="member-id-residence">{{ $user->lieu_residence ?? '—' }}</div>
+        <div class="member-id-blood-label">GROUPE SANGUIN</div>
+        <div class="member-id-blood">{{ $user->groupe_sanguin ?? '—' }}</div>
+        <div class="member-id-number-label">NUMÉRO DE MEMBRE</div>
+        <div class="member-id-number">{{ $user->member_id ?? 'EADM-'.$user->id }}</div>
+
+        <div class="member-id-photo">
+          @if ($user->carte_photo_url)
+            <img src="{{ $user->carte_photo_url }}" alt="Photo de {{ $user->prenom }} {{ $user->nom }}">
+          @else
+            <div class="member-id-photo-placeholder">{{ substr($user->prenom, 0, 1) }}{{ substr($user->nom, 0, 1) }}</div>
           @endif
         </div>
 
-        <div class="member-id-body">
-          <div class="member-id-photo">
-            @if ($user->carte_photo_url)
-              <img src="{{ $user->carte_photo_url }}" alt="Photo">
-            @else
-              <div class="member-id-photo-placeholder">{{ substr($user->prenom, 0, 1) }}{{ substr($user->nom, 0, 1) }}</div>
-            @endif
-          </div>
-
-          <div class="member-id-info">
-            <div class="member-id-label">Nom</div>
-            <div class="member-id-value">{{ strtoupper($user->nom) }}</div>
-
-            <div class="member-id-label">Prénom</div>
-            <div class="member-id-value">{{ strtoupper($user->prenom) }}</div>
-
-            @if ($user->date_naissance)
-              <div class="member-id-label">Date de naissance</div>
-              <div class="member-id-value">{{ $user->date_naissance->format('d/m/Y') }}</div>
-            @endif
-
-            @if ($user->sexe)
-              <div class="member-id-label">Sexe</div>
-              <div class="member-id-value">{{ $user->sexe }}</div>
-            @endif
-
-            @if ($user->lieu_residence)
-              <div class="member-id-label">Lieu de résidence</div>
-              <div class="member-id-value">{{ $user->lieu_residence }}</div>
-            @endif
-
-            <div class="member-id-label">Église</div>
-            <div class="member-id-value">{{ strtoupper($user->eglise->nom ?? '') }}</div>
-          </div>
-        </div>
-
-        @if ($user->carte_expiration)
-          <div class="member-id-expiry">Valide jusqu'au {{ $user->carte_expiration->format('d/m/Y') }}</div>
-        @endif
+        <div class="member-id-expiry">Valide jusqu'au {{ $user->carte_expiration ? $user->carte_expiration->format('d/m/Y') : '—' }}</div>
       </div>
 
       <div class="section-h" style="margin-top:26px;">Tes avantages</div>
