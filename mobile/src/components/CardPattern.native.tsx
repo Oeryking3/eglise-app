@@ -3,9 +3,9 @@ import { Image, StyleSheet } from 'react-native';
 export function CardPattern() {
   return (
     <Image
-      source={require('../../assets/images/carte-fond.png')}
+      source={require('../../assets/images/carte-modele.png')}
       style={styles.pattern}
-      resizeMode="repeat"
+      resizeMode="stretch"
     />
   );
 }

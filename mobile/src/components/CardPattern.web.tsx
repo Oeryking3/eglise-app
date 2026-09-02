@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const source = require('../../assets/images/carte-fond.png');
+const source = require('../../assets/images/carte-modele.png');
 
 // Sur le web, Image resizeMode="repeat" n'est pas correctement supporté par
 // React Native Web (l'image est agrandie au lieu d'être répétée à sa taille
@@ -14,11 +14,9 @@ export function CardPattern() {
         {
           containerType: 'inline-size',
           backgroundImage: `url(${source})`,
-          backgroundRepeat: 'repeat',
+          backgroundRepeat: 'no-repeat',
           backgroundPosition: 'top left',
-          // Le motif est réduit avant d'être répété (comme dans la maquette
-          // fournie), sinon les icônes paraissent trop grandes.
-          backgroundSize: '37.13cqw 23.51cqw',
+          backgroundSize: '100% 100%',
         } as never,
       ]}
     />

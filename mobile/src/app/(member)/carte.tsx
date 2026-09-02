@@ -70,33 +70,44 @@ export default function CarteScreen() {
 const PLACEHOLDER = '...';
 
 function Card({ user, colors }: { user: User; colors: ReturnType<typeof useThemeColors> }) {
-  const active = user.carte_est_valide;
-  const fullName = active ? `${user.prenom} ${user.nom}` : PLACEHOLDER;
-  const churchName = active ? user.eglise_nom?.toUpperCase() ?? PLACEHOLDER : PLACEHOLDER;
+  const active = true;
+  const fullName = `${user.prenom} ${user.nom}`;
+  const churchName = user.eglise_nom?.toUpperCase() ?? '—';
+  const bloodGroup = user.groupe_sanguin ?? '—';
+  const memberId = user.member_id ?? `EADM-${user.id}`;
+  const expiry = user.carte_expiration ? formatMonthYear(user.carte_expiration) : '—';
 
   return (
     <View style={styles.card}>
       <CardPattern />
 
+      <Text style={styles.cardNameLabel}>NOM COMPLET</Text>
       <Text style={styles.cardFullName} numberOfLines={1}>{fullName}</Text>
+      <Text style={styles.cardChurchLabel}>NOM DE L'ÉGLISE</Text>
       <Text style={styles.cardChurch} numberOfLines={1}>{churchName}</Text>
-      <Text style={styles.cardResidence} numberOfLines={1}>{active ? user.lieu_residence ?? '—' : PLACEHOLDER}</Text>
       <Text style={styles.cardBloodLabel}>GROUPE SANGUIN</Text>
-      <Text style={styles.cardBlood} numberOfLines={1}>{active ? user.groupe_sanguin ?? '—' : PLACEHOLDER}</Text>
+      <Text style={styles.cardBlood} numberOfLines={1}>{bloodGroup}</Text>
       <Text style={styles.cardMemberLabel}>NUMÉRO DE MEMBRE</Text>
-      <Text style={styles.cardMemberId} numberOfLines={1}>{active ? user.member_id ?? `EADM-${user.id}` : PLACEHOLDER}</Text>
+      <Text style={styles.cardMemberIdLabel}>MEMBER ID</Text>
+      <Text style={styles.cardMemberId} numberOfLines={1}>{memberId}</Text>
 
-      {active && user.carte_photo_url ? (
+      {user.carte_photo_url ? (
         <Image source={{ uri: user.carte_photo_url }} style={styles.photo} />
       ) : (
         <View style={[styles.photoPlaceholder, { backgroundColor: colors.orangeDark }]}>
-          <Text style={styles.photoInitials}>{active ? `${user.prenom[0]}${user.nom[0]}` : PLACEHOLDER}</Text>
+          <Text style={styles.photoInitials}>{`${user.prenom[0]}${user.nom[0]}`}</Text>
         </View>
       )}
 
-      <Text style={styles.footer}>Valide jusqu'au {active && user.carte_expiration ? formatDate(user.carte_expiration) : PLACEHOLDER}</Text>
+      <Text style={styles.footer}>Valide jusqu'au {expiry}</Text>
     </View>
   );
+}
+
+function formatMonthYear(isoDate: string): string {
+  const date = new Date(`${isoDate}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 }
 
 const styles = StyleSheet.create({
@@ -114,18 +125,22 @@ const styles = StyleSheet.create({
   cardFullName: {
     position: 'absolute',
     left: '37.3%',
-    top: '41%',
+    top: '43%',
     right: '4%',
     color: '#381916',
-    fontSize: 18,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    lineHeight: 19,
     fontWeight: '800',
   },
-  cardChurch: { position: 'absolute', left: '37.3%', top: '50%', right: '4%', color: '#381916', fontSize: 11, fontWeight: '800' },
-  cardResidence: { position: 'absolute', left: '37.3%', top: '56%', right: '4%', color: '#381916', fontSize: 11, fontWeight: '600' },
-  cardBloodLabel: { position: 'absolute', left: '37.3%', top: '62%', color: '#381916', fontSize: 10, fontWeight: '800' },
-  cardBlood: { position: 'absolute', left: '37.3%', top: '67%', right: '4%', color: '#b52b1d', fontSize: 17, fontWeight: '900' },
-  cardMemberLabel: { position: 'absolute', left: '37.3%', top: '76%', color: '#381916', fontSize: 10, fontWeight: '800' },
-  cardMemberId: { position: 'absolute', left: '37.3%', top: '82%', right: '4%', color: '#381916', fontSize: 10, fontWeight: '700' },
+  cardNameLabel: { position: 'absolute', left: '37.3%', top: '38%', color: '#381916', fontFamily: 'Arial', fontSize: 10, lineHeight: 12, fontWeight: '800' },
+  cardChurchLabel: { position: 'absolute', left: '37.3%', top: '51%', color: '#381916', fontFamily: 'Arial', fontSize: 10, lineHeight: 12, fontWeight: '800' },
+  cardChurch: { position: 'absolute', left: '37.3%', top: '55%', right: '4%', color: '#381916', fontFamily: 'Arial', fontSize: 12, lineHeight: 15, fontWeight: '800' },
+  cardBloodLabel: { position: 'absolute', left: '37.3%', top: '64%', color: '#381916', fontFamily: 'Arial', fontSize: 10, lineHeight: 12, fontWeight: '800' },
+  cardBlood: { position: 'absolute', left: '37.3%', top: '69%', right: '4%', color: '#b52b1d', fontFamily: 'Arial', fontSize: 16, lineHeight: 19, fontWeight: '900' },
+  cardMemberLabel: { position: 'absolute', left: '37.3%', top: '77%', color: '#381916', fontFamily: 'Arial', fontSize: 10, lineHeight: 12, fontWeight: '800' },
+  cardMemberIdLabel: { position: 'absolute', left: '37.3%', top: '81%', color: '#381916', fontFamily: 'Arial', fontSize: 10, lineHeight: 12, fontWeight: '800' },
+  cardMemberId: { position: 'absolute', left: '37.3%', top: '85%', right: '4%', color: '#381916', fontFamily: 'Arial', fontSize: 12, lineHeight: 15, fontWeight: '700' },
   photo: { position: 'absolute', left: '6.5%', top: '36%', width: '28.7%', height: '53%', borderWidth: 2, borderColor: '#d28d00', backgroundColor: '#fff' },
   photoPlaceholder: {
     position: 'absolute',
@@ -138,15 +153,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  photoInitials: { color: '#fff', fontWeight: '800', fontSize: 26 },
+  photoInitials: { color: '#fff', fontFamily: 'Arial', fontWeight: '800', fontSize: 20, lineHeight: 24 },
   footer: {
     position: 'absolute',
     left: '7.5%',
     bottom: '3.5%',
     color: '#381916',
-    fontSize: 9,
+    fontFamily: 'Arial',
+    fontSize: 10,
+    lineHeight: 12,
     fontWeight: '700',
   },
+  inactiveOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.74)' },
   sectionTitle: { fontSize: 16, fontWeight: '800', color: staticColors.textDark, marginBottom: spacing.md },
   empty: { fontSize: 13, color: staticColors.textFaint },
   benefitCard: {
