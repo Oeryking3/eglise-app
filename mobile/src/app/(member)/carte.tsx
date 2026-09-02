@@ -71,49 +71,30 @@ const PLACEHOLDER = '...';
 
 function Card({ user, colors }: { user: User; colors: ReturnType<typeof useThemeColors> }) {
   const active = user.carte_est_valide;
+  const fullName = active ? `${user.prenom} ${user.nom}` : PLACEHOLDER;
+  const churchName = active ? user.eglise_nom?.toUpperCase() ?? PLACEHOLDER : PLACEHOLDER;
 
   return (
     <View style={styles.card}>
       <CardPattern />
 
-      <Text style={[styles.cardBadge, { backgroundColor: colors.orange }]}>CARTE DE MEMBRE</Text>
+      <Text style={styles.cardFullName} numberOfLines={1}>{fullName}</Text>
+      <Text style={styles.cardChurch} numberOfLines={1}>{churchName}</Text>
+      <Text style={styles.cardResidence} numberOfLines={1}>{active ? user.lieu_residence ?? '—' : PLACEHOLDER}</Text>
+      <Text style={styles.cardBloodLabel}>GROUPE SANGUIN</Text>
+      <Text style={styles.cardBlood} numberOfLines={1}>{active ? user.groupe_sanguin ?? '—' : PLACEHOLDER}</Text>
+      <Text style={styles.cardMemberLabel}>NUMÉRO DE MEMBRE</Text>
+      <Text style={styles.cardMemberId} numberOfLines={1}>{active ? user.member_id ?? `EADM-${user.id}` : PLACEHOLDER}</Text>
 
-      {active && user.groupe_sanguin ? (
-        <View style={[styles.bloodChip, { backgroundColor: colors.orange }]}>
-          <Text style={styles.bloodChipText}>{user.groupe_sanguin}</Text>
+      {active && user.carte_photo_url ? (
+        <Image source={{ uri: user.carte_photo_url }} style={styles.photo} />
+      ) : (
+        <View style={[styles.photoPlaceholder, { backgroundColor: colors.orangeDark }]}>
+          <Text style={styles.photoInitials}>{active ? `${user.prenom[0]}${user.nom[0]}` : PLACEHOLDER}</Text>
         </View>
-      ) : null}
+      )}
 
-      <View style={styles.cardBody}>
-        {active && user.carte_photo_url ? (
-          <Image source={{ uri: user.carte_photo_url }} style={styles.photo} />
-        ) : (
-          <View style={[styles.photoPlaceholder, { backgroundColor: colors.orangeDark }]}>
-            <Text style={styles.photoInitials}>{active ? `${user.prenom[0]}${user.nom[0]}` : PLACEHOLDER}</Text>
-          </View>
-        )}
-        <View style={{ flex: 1 }}>
-          <Row label="Nom" value={active ? user.nom : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
-          <Row label="Prénom" value={active ? user.prenom : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
-          <Row label="Date de naissance" value={active ? formatDate(user.date_naissance) : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
-          <Row label="Sexe" value={active ? user.sexe ?? '—' : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
-          <Row label="Lieu de résidence" value={active ? user.lieu_residence ?? '—' : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
-          <Row label="Église" value={active ? user.eglise_nom?.toUpperCase() ?? '—' : PLACEHOLDER} labelColor={colors.orange} valueColor={colors.orangeDark} />
-        </View>
-      </View>
-
-      {active && user.carte_expiration ? (
-        <Text style={[styles.footer, { color: colors.orangeDark }]}>Valide jusqu'au {formatDate(user.carte_expiration)}</Text>
-      ) : null}
-    </View>
-  );
-}
-
-function Row({ label, value, labelColor, valueColor }: { label: string; value: string; labelColor: string; valueColor: string }) {
-  return (
-    <View style={styles.row}>
-      <Text style={[styles.rowLabel, { color: labelColor }]}>{label}</Text>
-      <Text style={[styles.rowValue, { color: valueColor }]}>{value}</Text>
+      <Text style={styles.footer}>Valide jusqu'au {active && user.carte_expiration ? formatDate(user.carte_expiration) : PLACEHOLDER}</Text>
     </View>
   );
 }
@@ -124,54 +105,46 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     borderRadius: radii.xl,
-    padding: spacing.lg,
-    paddingLeft: spacing.xl,
-    paddingTop: spacing.xl,
     marginBottom: spacing.xl,
     width: '100%',
     maxWidth: 460,
+    aspectRatio: 1.594,
     alignSelf: 'center',
   },
-  cardBadge: {
-    alignSelf: 'center',
-    textAlign: 'center',
-    color: '#fff',
+  cardFullName: {
+    position: 'absolute',
+    left: '37.3%',
+    top: '41%',
+    right: '4%',
+    color: '#381916',
     fontSize: 18,
     fontWeight: '800',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: radii.md,
-    marginTop: spacing.xs,
-    marginBottom: spacing.lg,
-    overflow: 'hidden',
   },
-  bloodChip: {
-    position: 'absolute',
-    top: 92,
-    right: -8,
-    borderRadius: radii.lg,
-    width: 56,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bloodChipText: { color: '#fff', fontWeight: '800', fontSize: 17 },
-  cardBody: { flexDirection: 'row', gap: spacing.lg },
-  photo: { width: 128, height: 158, borderRadius: radii.sm, backgroundColor: '#fff' },
+  cardChurch: { position: 'absolute', left: '37.3%', top: '50%', right: '4%', color: '#381916', fontSize: 11, fontWeight: '800' },
+  cardResidence: { position: 'absolute', left: '37.3%', top: '56%', right: '4%', color: '#381916', fontSize: 11, fontWeight: '600' },
+  cardBloodLabel: { position: 'absolute', left: '37.3%', top: '62%', color: '#381916', fontSize: 10, fontWeight: '800' },
+  cardBlood: { position: 'absolute', left: '37.3%', top: '67%', right: '4%', color: '#b52b1d', fontSize: 17, fontWeight: '900' },
+  cardMemberLabel: { position: 'absolute', left: '37.3%', top: '76%', color: '#381916', fontSize: 10, fontWeight: '800' },
+  cardMemberId: { position: 'absolute', left: '37.3%', top: '82%', right: '4%', color: '#381916', fontSize: 10, fontWeight: '700' },
+  photo: { position: 'absolute', left: '6.5%', top: '36%', width: '28.7%', height: '53%', borderWidth: 2, borderColor: '#d28d00', backgroundColor: '#fff' },
   photoPlaceholder: {
-    width: 128,
-    height: 158,
-    borderRadius: radii.sm,
+    position: 'absolute',
+    left: '6.5%',
+    top: '36%',
+    width: '28.7%',
+    height: '53%',
+    borderWidth: 2,
+    borderColor: '#d28d00',
     alignItems: 'center',
     justifyContent: 'center',
   },
   photoInitials: { color: '#fff', fontWeight: '800', fontSize: 26 },
-  row: { marginBottom: 10 },
-  rowLabel: { fontSize: 11, fontWeight: '500' },
-  rowValue: { fontSize: 15, fontWeight: '800', marginTop: 1 },
   footer: {
-    marginTop: spacing.md,
-    fontSize: 11,
+    position: 'absolute',
+    left: '7.5%',
+    bottom: '3.5%',
+    color: '#381916',
+    fontSize: 9,
     fontWeight: '700',
   },
   sectionTitle: { fontSize: 16, fontWeight: '800', color: staticColors.textDark, marginBottom: spacing.md },
