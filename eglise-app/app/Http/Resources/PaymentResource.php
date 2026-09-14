@@ -13,6 +13,7 @@ class PaymentResource extends JsonResource
             'id' => $this->id,
             'user' => new UserResource($this->whenLoaded('user')),
             'livre_id' => $this->livre_id,
+            'type' => $this->type,
             'produit' => $this->produit,
             'montant' => $this->montant,
             'methode' => $this->methode,

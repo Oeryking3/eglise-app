@@ -69,9 +69,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('feature:livres')->group(function () {
         Route::post('/paiement', [PaymentController::class, 'store']);
-        Route::get('/paiements/{payment}', [PaymentController::class, 'show']);
         Route::get('/livres', [LivreController::class, 'index']);
     });
+
+    Route::get('/paiements/{payment}', [PaymentController::class, 'show']);
+    Route::post('/don', [PaymentController::class, 'donation']);
 
     Route::post('/push-token', [PushTokenController::class, 'store']);
 

@@ -97,6 +97,62 @@ class PaymentController extends Controller
         ], 201);
     }
 
+    public function donation(Request $request, GeniusPayService $geniuspay)
+    {
+        $data = $request->validate([
+            'montant' => ['required', 'integer', 'min:500', 'max:10000000'],
+            'return_url' => ['required', 'string'],
+        ]);
+
+        $payment = Payment::create([
+            'user_id' => $request->user()->id,
+            'type' => 'don',
+            'produit' => 'Don à l\'église',
+            'montant' => $data['montant'],
+            'statut' => 'en_attente',
+            'reference' => 'DON-' . Str::uuid(),
+        ]);
+
+        $relayUrl = route('paiement.retour', [
+            'payment_id' => $payment->id,
+            'mobile_return' => $data['return_url'],
+        ]);
+
+        try {
+            $result = $geniuspay->initiatePayment([
+                'amount' => $payment->montant,
+                'currency' => 'XOF',
+                'description' => 'Don à l\'église',
+                'customer' => [
+                    'name' => trim($request->user()->prenom . ' ' . $request->user()->nom),
+                    'email' => $request->user()->email,
+                ],
+                'success_url' => $relayUrl . '&statut=succes',
+                'error_url' => $relayUrl . '&statut=echec',
+                'metadata' => ['order_id' => $payment->reference],
+            ]);
+        } catch (\Throwable $e) {
+            $payment->update(['statut' => 'echoue']);
+
+            return response()->json(['message' => $e->getMessage()], 502);
+        }
+
+        $paymentUrl = $result['data']['checkout_url'] ?? $result['data']['payment_url'] ?? null;
+
+        if (! $paymentUrl) {
+            $payment->update(['statut' => 'echoue']);
+
+            return response()->json(['message' => 'Impossible de créer le paiement GeniusPay.'], 502);
+        }
+
+        $payment->update(['provider_reference' => $result['data']['reference'] ?? null]);
+
+        return response()->json([
+            'payment' => new PaymentResource($payment),
+            'payment_url' => $paymentUrl,
+        ], 201);
+    }
+
     public function show(Request $request, Payment $payment, GeniusPayService $geniuspay)
     {
         abort_if($payment->user_id !== $request->user()->id, 403);

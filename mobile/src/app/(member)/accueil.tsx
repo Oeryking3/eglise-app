@@ -210,6 +210,8 @@ export default function AccueilScreen() {
                 ) : null}
 
                 <View style={{ marginTop: spacing.xl }}>
+                  <PillButton title="Soutenir l'église" onPress={() => router.push('/(member)/don' as never)} />
+                  <View style={{ height: spacing.md }} />
                   {features.livres ? (
                     <>
                       <Link href="/(member)/livres" asChild>

@@ -15,6 +15,7 @@ class Payment extends Model
         'eglise_id',
         'user_id',
         'livre_id',
+        'type',
         'produit',
         'montant',
         'methode',
@@ -32,5 +33,10 @@ class Payment extends Model
     public function livre()
     {
         return $this->belongsTo(Livre::class);
+    }
+
+    public function isDonation(): bool
+    {
+        return $this->type === 'don';
     }
 }
