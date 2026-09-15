@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProgrammeItemResource;
 use App\Models\ProgrammeItem;
-use App\Services\TenantContext;
-use Illuminate\Support\Facades\Cache;
 
 class ProgrammeItemController extends Controller
 {
@@ -17,11 +15,7 @@ class ProgrammeItemController extends Controller
      */
     public function index()
     {
-        $egliseId = app(TenantContext::class)->egliseId();
-
-        $items = Cache::remember("programme:{$egliseId}", now()->addHour(), function () {
-            return ProgrammeItem::orderBy('ordre')->orderBy('id')->get();
-        });
+        $items = ProgrammeItem::orderBy('ordre')->orderBy('id')->get();
 
         return ProgrammeItemResource::collection($items);
     }
