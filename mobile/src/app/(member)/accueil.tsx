@@ -4,13 +4,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PillButton } from '@/components/PillButton';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { formatDateAndRange } from '@/lib/format';
 import { useThemeColors } from '@/lib/theme-context';
+import { getItem, setItem } from '@/lib/storage';
 import { AgendaItem, ChurchNotification, EventItem, LiveStream, ProgrammeItem, User } from '@/lib/types';
 import { colors as staticColors, radii, spacing } from '@/theme/tokens';
 
@@ -32,6 +33,9 @@ const EVENT_CARD_STRIDE = 220 + 12;
 export default function AccueilScreen() {
   const { user, logout } = useAuth();
   const colors = useThemeColors();
+  const noteKey = user ? `eglise_member_note_${user.id}` : null;
+  const [note, setNote] = useState('');
+  const [noteSaved, setNoteSaved] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ['accueil'],
     queryFn: async () => (await api.get<DashboardResponse>('/accueil')).data,
@@ -62,6 +66,18 @@ export default function AccueilScreen() {
   };
 
   const [remindersOpen, setRemindersOpen] = useState(false);
+
+  useEffect(() => {
+    if (!noteKey) return;
+    getItem(noteKey).then((savedNote) => setNote(savedNote ?? ''));
+  }, [noteKey]);
+
+  const saveNote = async () => {
+    if (!noteKey) return;
+    await setItem(noteKey, note.trim());
+    setNoteSaved(true);
+    setTimeout(() => setNoteSaved(false), 1800);
+  };
 
   const carouselRef = useRef<ScrollView>(null);
   const carouselIndex = useRef(0);
@@ -208,6 +224,25 @@ export default function AccueilScreen() {
                     )}
                   </>
                 ) : null}
+
+                <View style={styles.noteBlock}>
+                  <Text style={styles.sectionTitle}>Ma note</Text>
+                  <TextInput
+                    value={note}
+                    onChangeText={(value) => {
+                      setNote(value);
+                      setNoteSaved(false);
+                    }}
+                    placeholder="Écris une note à garder pour plus tard..."
+                    placeholderTextColor={staticColors.textPlaceholder}
+                    multiline
+                    textAlignVertical="top"
+                    style={styles.noteInput}
+                  />
+                  <Pressable style={[styles.noteButton, { backgroundColor: colors.orange }]} onPress={saveNote}>
+                    <Text style={styles.noteButtonText}>{noteSaved ? 'Note enregistrée' : 'Enregistrer'}</Text>
+                  </Pressable>
+                </View>
 
               </>
             )}
@@ -384,6 +419,30 @@ const styles = StyleSheet.create({
   },
   notifTitle: { fontWeight: '700', fontSize: 13, color: staticColors.textDark },
   notifMessage: { fontSize: 12, color: staticColors.textMuted, marginTop: 2 },
+  noteBlock: {
+    marginTop: spacing.xl,
+    borderWidth: 1,
+    borderColor: staticColors.cardBorder,
+    borderRadius: radii.md,
+    padding: spacing.md,
+  },
+  noteInput: {
+    minHeight: 92,
+    borderWidth: 1,
+    borderColor: staticColors.cardBorder,
+    borderRadius: radii.sm,
+    padding: spacing.md,
+    color: staticColors.textDark,
+    fontSize: 13,
+    backgroundColor: '#fff',
+  },
+  noteButton: {
+    alignItems: 'center',
+    borderRadius: radii.sm,
+    marginTop: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  noteButtonText: { color: '#fff', fontSize: 13, fontWeight: '800' },
   programmeRow: {
     flexDirection: 'row',
     alignItems: 'center',

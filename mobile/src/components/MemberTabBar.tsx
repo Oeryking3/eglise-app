@@ -8,7 +8,7 @@ import type { EgliseFeatures } from '../lib/types';
 import { colors as staticColors, spacing } from '../theme/tokens';
 
 const TABS = [
-  { icon: 'heart', label: 'Soutenir', href: '/(member)/don', feature: null },
+  { icon: 'heart', label: 'Dîme', href: '/(member)/don', feature: null },
   { icon: 'book-open', label: 'Bible', href: '/(member)/bible', feature: null },
   { icon: 'book', label: 'Livres', href: '/(member)/livres', feature: 'livres' },
   { icon: 'calendar', label: 'Agenda', href: '/(member)/agenda', feature: 'agenda' },

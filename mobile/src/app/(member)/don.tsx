@@ -97,7 +97,7 @@ export default function DonScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
           <Feather name="arrow-left" size={20} color="#fff" />
         </Pressable>
-        <Text style={styles.title}>Soutenir l’église</Text>
+        <Text style={styles.title}>Dîme</Text>
         <Text style={styles.subtitle}>Chaque don contribue à la vie et aux actions de notre communauté.</Text>
       </SafeAreaView>
 
