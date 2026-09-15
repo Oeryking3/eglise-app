@@ -26,7 +26,7 @@ export default function LivresScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <HeaderWithBack title="Livres" subtitle="Guides PDF à télécharger" />
+      <HeaderWithBack title="Livres" subtitle="Guides PDF à télécharger" backTo="/(member)/accueil" />
       <ScrollView contentContainerStyle={styles.content}>
         {isLoading ? (
           <ActivityIndicator style={{ marginTop: 20 }} color={colors.orange} />

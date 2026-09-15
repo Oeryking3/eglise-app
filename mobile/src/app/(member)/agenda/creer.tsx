@@ -20,7 +20,7 @@ export default function AgendaCreerScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <HeaderWithBack title="Nouveau rappel" backTo="/(member)/agenda" />
+      <HeaderWithBack title="Nouveau rappel" backTo="/(member)/accueil" />
       <AgendaForm submitLabel="Ajouter le rappel" onSubmit={onSubmit} />
     </View>
   );

@@ -32,7 +32,7 @@ export default function AgendaModifierScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <HeaderWithBack title="Modifier le rappel" backTo="/(member)/agenda" />
+      <HeaderWithBack title="Modifier le rappel" backTo="/(member)/accueil" />
       {isLoading || !item ? (
         <ActivityIndicator style={{ marginTop: 40 }} color={colors.orange} />
       ) : (
