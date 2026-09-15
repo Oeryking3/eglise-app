@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, SafeAreaView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, SafeAreaView, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { HeaderWithBack } from '@/components/HeaderWithBack';
 import { useAuth } from '@/lib/auth-context';
 import { getItem, setItem } from '@/lib/storage';
@@ -66,7 +66,7 @@ export default function NotesScreen() {
   return (
     <View style={styles.page}>
       <HeaderWithBack title="Mes notes personnelles" subtitle="Garde une pensée ou un rappel pour plus tard" backTo="/(member)/accueil" />
-      <SafeAreaView style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.noteCard}>
           <View style={styles.iconWrap}>
             <Feather name="edit-3" size={20} color={colors.orange} />
@@ -113,7 +113,7 @@ export default function NotesScreen() {
             ))}
           </View>
         ) : null}
-      </SafeAreaView>
+      </ScrollView>
     </View>
   );
 }
