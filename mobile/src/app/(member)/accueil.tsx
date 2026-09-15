@@ -32,14 +32,16 @@ const EVENT_CARD_STRIDE = 220 + 12;
 export default function AccueilScreen() {
   const { user, logout } = useAuth();
   const colors = useThemeColors();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['accueil'],
     queryFn: async () => (await api.get<DashboardResponse>('/accueil')).data,
+    retry: 1,
   });
   const { data: programmeData } = useQuery({
     queryKey: ['programme'],
     queryFn: async () => (await api.get<{ data: ProgrammeItem[] } | ProgrammeItem[]>('/programme')).data,
     enabled: user?.eglise_features.programme !== false,
+    retry: 1,
   });
   const onLogout = async () => {
     await logout();
@@ -123,6 +125,13 @@ export default function AccueilScreen() {
           <View style={styles.sheetContent}>
             {isLoading ? (
               <ActivityIndicator style={{ marginTop: 40 }} color={colors.orange} />
+            ) : isError ? (
+              <View style={styles.errorState}>
+                <Feather name="wifi-off" size={28} color={colors.orange} />
+                <Text style={styles.errorTitle}>Connexion impossible</Text>
+                <Text style={styles.errorText}>Vérifie ta connexion puis réessaie.</Text>
+                <PillButton title="Réessayer" onPress={() => refetch()} />
+              </View>
             ) : (
               <>
                 {features.direct && data?.live_stream?.actif && data.live_stream.url ? (
@@ -327,6 +336,9 @@ const styles = StyleSheet.create({
   liveSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 12, marginTop: 2 },
   sectionTitle: { fontSize: 16, fontWeight: '800', color: staticColors.textDark, marginBottom: spacing.md },
   empty: { fontSize: 13, color: staticColors.textFaint, marginBottom: spacing.md },
+  errorState: { alignItems: 'center', paddingVertical: 40 },
+  errorTitle: { color: staticColors.textDark, fontSize: 17, fontWeight: '800', marginTop: spacing.md },
+  errorText: { color: staticColors.textMuted, fontSize: 13, marginBottom: spacing.lg, marginTop: spacing.xs, textAlign: 'center' },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
