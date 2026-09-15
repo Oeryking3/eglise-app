@@ -13,6 +13,7 @@ const TABS = [
   { icon: 'book', label: 'Livres', href: '/(member)/livres', feature: 'livres' },
   { icon: 'calendar', label: 'Agenda', href: '/(member)/agenda', feature: 'agenda' },
   { icon: 'credit-card', label: 'Carte', href: '/(member)/carte', feature: 'carte' },
+  { icon: 'edit-3', label: 'Notes', href: '/(member)/notes', feature: null },
 ] as const;
 
 export function MemberTabBar() {
