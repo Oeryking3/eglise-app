@@ -209,33 +209,6 @@ export default function AccueilScreen() {
                   </>
                 ) : null}
 
-                <View style={{ marginTop: spacing.xl }}>
-                  <PillButton title="Soutenir l'église" onPress={() => router.push('/(member)/don' as never)} />
-                  <View style={{ height: spacing.md }} />
-                  <PillButton title="Lire la Bible" variant="outline" onPress={() => router.push('/(member)/bible' as never)} />
-                  <View style={{ height: spacing.md }} />
-                  {features.livres ? (
-                    <>
-                      <Link href="/(member)/livres" asChild>
-                        <PillButton title="Livres PDF" />
-                      </Link>
-                      <View style={{ height: spacing.md }} />
-                    </>
-                  ) : null}
-                  {features.agenda ? (
-                    <>
-                      <Link href="/(member)/agenda" asChild>
-                        <PillButton title="Mon agenda" variant="outline" />
-                      </Link>
-                      <View style={{ height: spacing.md }} />
-                    </>
-                  ) : null}
-                  {features.carte ? (
-                    <Link href="/(member)/carte" asChild>
-                      <PillButton title="Ma carte de membre" variant="outline" />
-                    </Link>
-                  ) : null}
-                </View>
               </>
             )}
           </View>
