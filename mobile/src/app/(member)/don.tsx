@@ -54,6 +54,7 @@ export default function DonScreen() {
           : Linking.createURL('don-retour');
       const { data } = await api.post<{ payment: { id: number }; payment_url: string }>('/don', {
         montant: donationAmount,
+        type: 'dime',
         return_url: returnUrl,
       });
 
@@ -98,7 +99,7 @@ export default function DonScreen() {
           <Feather name="arrow-left" size={20} color="#fff" />
         </Pressable>
         <Text style={styles.title}>Dîme</Text>
-        <Text style={styles.subtitle}>Chaque don contribue à la vie et aux actions de notre communauté.</Text>
+        <Text style={styles.subtitle}>La dîme est une part consacrée à Dieu, destinée à soutenir l’œuvre et la mission de l’église.</Text>
       </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -123,6 +124,9 @@ export default function DonScreen() {
           <Text style={styles.currency}>FCFA</Text>
         </View>
         <Text style={styles.hint}>Le paiement sécurisé te permettra de choisir Wave, Orange Money, MTN Money, Moov Money ou carte bancaire.</Text>
+        <Pressable onPress={() => router.push('/(member)/offrandes' as never)} style={styles.offrandesLink}>
+          <Text style={styles.offrandesLinkText}>Voir les offrandes et les offrandes journalières</Text>
+        </Pressable>
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <PillButton title="Continuer vers le paiement" onPress={onSubmit} loading={loading} />
       </ScrollView>
@@ -138,6 +142,8 @@ const styles = StyleSheet.create({
   subtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 13, lineHeight: 20, marginTop: spacing.sm },
   content: { padding: spacing.xl, paddingBottom: 60 },
   label: { color: colors.textDark, fontSize: 14, fontWeight: '800', marginBottom: spacing.md, marginTop: spacing.md },
+  offrandesLink: { marginBottom: spacing.lg, marginTop: spacing.md },
+  offrandesLinkText: { color: colors.orangeDark, fontSize: 13, fontWeight: '800', textAlign: 'center' },
   presets: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   preset: { borderColor: colors.orangeBorder, borderRadius: radii.md, borderWidth: 1, paddingHorizontal: spacing.md, paddingVertical: spacing.md },
   presetActive: { backgroundColor: colors.orange, borderColor: colors.orange },

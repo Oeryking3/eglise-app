@@ -101,13 +101,26 @@ class PaymentController extends Controller
     {
         $data = $request->validate([
             'montant' => ['required', 'integer', 'min:500', 'max:10000000'],
+            'type' => ['required', 'in:dime,offrande,offrande_journaliere'],
             'return_url' => ['required', 'string'],
         ]);
 
+        $produits = [
+            'dime' => 'Dîme',
+            'offrande' => 'Offrande',
+            'offrande_journaliere' => 'Offrande journalière',
+        ];
+
+        if ($data['type'] === 'offrande_journaliere' && $data['montant'] < 1000) {
+            return response()->json(['message' => 'Une offrande journalière doit être d’au moins 1 000 FCFA.'], 422);
+        }
+
+        $produit = $produits[$data['type']];
+
         $payment = Payment::create([
             'user_id' => $request->user()->id,
-            'type' => 'don',
-            'produit' => 'Don à l\'église',
+            'type' => $data['type'],
+            'produit' => $produit,
             'montant' => $data['montant'],
             'statut' => 'en_attente',
             'reference' => 'DON-' . Str::uuid(),
@@ -122,7 +135,7 @@ class PaymentController extends Controller
             $result = $geniuspay->initiatePayment([
                 'amount' => $payment->montant,
                 'currency' => 'XOF',
-                'description' => 'Don à l\'église',
+                'description' => $produit,
                 'customer' => [
                     'name' => trim($request->user()->prenom . ' ' . $request->user()->nom),
                     'email' => $request->user()->email,

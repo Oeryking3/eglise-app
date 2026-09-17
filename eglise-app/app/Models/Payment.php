@@ -37,6 +37,6 @@ class Payment extends Model
 
     public function isDonation(): bool
     {
-        return $this->type === 'don';
+        return in_array($this->type, ['don', 'dime', 'offrande', 'offrande_journaliere'], true);
     }
 }

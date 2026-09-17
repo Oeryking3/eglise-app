@@ -148,6 +148,13 @@ export default function AccueilScreen() {
                   </Pressable>
                 ) : null}
 
+                <View style={styles.supportSection}>
+                  <Text style={styles.sectionTitle}>Soutenir l’église</Text>
+                  <Link href="/(member)/offrandes" asChild>
+                    <PillButton title="Faire une offrande" />
+                  </Link>
+                </View>
+
                 {features.evenements ? (
                   <>
                     <Text style={styles.sectionTitle}>Évènements à venir</Text>
@@ -308,7 +315,7 @@ const styles = StyleSheet.create({
   sheet: {
     backgroundColor: '#fff',
     borderTopLeftRadius: radii.sheet,
-    borderTopRightRadius: radii.sheet,
+    supportSection: { marginBottom: spacing.xl },
     minHeight: 600,
   },
   sheetContent: {
