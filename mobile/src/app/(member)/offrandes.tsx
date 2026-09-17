@@ -3,8 +3,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import { HeaderWithBack } from '@/components/HeaderWithBack';
 import { PillButton } from '@/components/PillButton';
 import { api, extractErrorMessage } from '@/lib/api';
 import { colors, radii, spacing } from '@/theme/tokens';
@@ -84,11 +84,7 @@ export default function OffrandesScreen() {
   }
 
   return <View style={styles.page}>
-    <SafeAreaView edges={['top']} style={styles.header}>
-      <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}><Feather name="arrow-left" size={20} color="#fff" /></Pressable>
-      <Text style={styles.title}>Offrandes</Text>
-      <Text style={styles.subtitle}>{selectedContribution.description}</Text>
-    </SafeAreaView>
+    <HeaderWithBack title="Offrandes" subtitle={selectedContribution.description} backTo="/(member)/accueil" />
     <ScrollView contentContainerStyle={styles.content}>
       <Text style={styles.label}>Choisis une contribution</Text>
       <View style={styles.types}>
@@ -113,10 +109,6 @@ export default function OffrandesScreen() {
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: '#fff' },
-  header: { backgroundColor: colors.orangeHeader, paddingHorizontal: spacing.xl, paddingBottom: spacing.xl },
-  back: { marginTop: spacing.md, marginBottom: spacing.md },
-  title: { color: '#fff', fontSize: 24, fontWeight: '800' },
-  subtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 13, lineHeight: 20, marginTop: spacing.sm },
   content: { padding: spacing.xl, paddingBottom: 60 },
   label: { color: colors.textDark, fontSize: 14, fontWeight: '800', marginBottom: spacing.md, marginTop: spacing.md },
   types: { gap: spacing.sm },

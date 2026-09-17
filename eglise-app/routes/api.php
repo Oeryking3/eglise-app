@@ -38,6 +38,12 @@ Route::post('/register', [AuthController::class, 'register'])->middleware('throt
 Route::get('/eglises', [EgliseController::class, 'index']);
 Route::post('/eglises/demandes', [EgliseRequestController::class, 'store']);
 Route::post('/webhooks/genius-pay', [GeniusPayWebhookController::class, 'handle']);
+Route::get('/bible-index', function () {
+    return response()->file(public_path('files/bible-pages.json'), [
+        'Access-Control-Allow-Origin' => '*',
+        'Content-Type' => 'application/json',
+    ]);
+});
 
 /*
 |--------------------------------------------------------------------------
