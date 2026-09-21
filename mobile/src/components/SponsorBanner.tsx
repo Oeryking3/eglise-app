@@ -2,11 +2,10 @@ import { useEffect, useRef } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors, spacing } from '@/theme/tokens';
 
-const sponsors = [
-  { name: 'Orange', suffix: 'CI', color: '#F47B20', textColor: colors.white },
-  { name: 'MTN', suffix: 'CI', color: '#FFCC08', textColor: colors.black },
-  { name: 'Moov', suffix: 'Africa', color: '#0057A6', textColor: colors.white },
-  { name: 'wave', suffix: 'CI', color: '#1434CB', textColor: colors.white },
+const advertisements = [
+  { title: 'Votre entreprise ici', detail: 'Présentez votre activité', color: '#F0602E' },
+  { title: 'Offre spéciale', detail: 'Ajoutez votre annonce', color: '#176B87' },
+  { title: 'Espace publicitaire', detail: 'Réservé aux entreprises', color: '#D08A19' },
 ];
 
 export function SponsorBanner() {
@@ -23,19 +22,21 @@ export function SponsorBanner() {
   }, []);
 
   return (
-    <View style={styles.banner} accessibilityLabel="Exemples de partenaires publicitaires">
-      <Text style={styles.eyebrow}>PARTENAIRES</Text>
+    <View style={styles.banner} accessibilityLabel="Espace publicitaire">
+      <Text style={styles.eyebrow}>PUBLICITÉ</Text>
       <ScrollView
         ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.logoRow}
       >
-        {sponsors.concat(sponsors).map((sponsor, index) => (
-          <View key={`${sponsor.name}-${index}`} style={styles.logo}>
-            <View style={[styles.logoMark, { backgroundColor: sponsor.color }]} />
-            <Text style={styles.logoName}>{sponsor.name}</Text>
-            <Text style={styles.logoSuffix}>{sponsor.suffix}</Text>
+        {advertisements.concat(advertisements).map((advertisement, index) => (
+          <View key={`${advertisement.title}-${index}`} style={styles.advertisement}>
+            <View style={[styles.adMark, { backgroundColor: advertisement.color }]} />
+            <View>
+              <Text style={styles.adTitle}>{advertisement.title}</Text>
+              <Text style={styles.adDetail}>{advertisement.detail}</Text>
+            </View>
           </View>
         ))}
       </ScrollView>
@@ -66,26 +67,25 @@ const styles = StyleSheet.create({
     gap: spacing.xl,
     paddingHorizontal: spacing.xl,
   },
-  logo: {
+  advertisement: {
     alignItems: 'center',
     flexDirection: 'row',
-    minWidth: 86,
+    minWidth: 164,
   },
-  logoMark: {
-    borderRadius: 3,
-    height: 8,
-    marginRight: 5,
-    width: 8,
+  adMark: {
+    borderRadius: 5,
+    height: 28,
+    marginRight: spacing.sm,
+    width: 5,
   },
-  logoName: {
+  adTitle: {
     color: colors.textDark,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '800',
   },
-  logoSuffix: {
+  adDetail: {
     color: colors.textLight,
-    fontSize: 9,
-    fontWeight: '700',
-    marginLeft: 3,
+    fontSize: 10,
+    marginTop: 2,
   },
 });
