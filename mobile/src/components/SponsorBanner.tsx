@@ -3,9 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors, spacing } from '@/theme/tokens';
 
 const advertisements = [
-  { title: 'Votre entreprise ici', detail: 'Présentez votre activité', color: '#F0602E' },
-  { title: 'Offre spéciale', detail: 'Ajoutez votre annonce', color: '#176B87' },
-  { title: 'Espace publicitaire', detail: 'Réservé aux entreprises', color: '#D08A19' },
+  { title: 'Orange CI', detail: 'Orange Money', color: '#FF7900' },
 ];
 
 export function SponsorBanner() {
