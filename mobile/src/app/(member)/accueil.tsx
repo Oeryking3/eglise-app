@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PillButton } from '@/components/PillButton';
+import { SponsorBanner } from '@/components/SponsorBanner';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { formatDateAndRange } from '@/lib/format';
@@ -123,6 +124,8 @@ export default function AccueilScreen() {
 
         <View style={styles.sheet}>
           <View style={styles.sheetContent}>
+            <SponsorBanner />
+
             {isLoading ? (
               <ActivityIndicator style={{ marginTop: 40 }} color={colors.orange} />
             ) : isError ? (
@@ -230,7 +233,7 @@ export default function AccueilScreen() {
           <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
             <Text style={styles.modalTitle}>Rappels du jour</Text>
             {reminders.length === 0 ? (
-              <Text style={styles.empty}>Aucun rappel pour aujourd'hui.</Text>
+              <Text style={styles.empty}>Aucun rappel pour aujourd&apos;hui.</Text>
             ) : (
               reminders.map((r) => (
                 <View key={r.id} style={[styles.reminderBanner, { backgroundColor: colors.orangeLight }]}>

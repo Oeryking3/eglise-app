@@ -65,7 +65,7 @@ export default function LoginScreen() {
 
               <PillButton title="Connexion" onPress={onSubmit} loading={loading} style={{ marginTop: spacing.sm }} />
 
-              <Text style={styles.switchText}>Vous n'avez pas de compte ? inscrivez-vous</Text>
+              <Text style={styles.switchText}>Vous n&apos;avez pas de compte ? inscrivez-vous</Text>
               <Link href="/(auth)/signup" asChild>
                 <PillButton title="S'inscrire" variant="dark" />
               </Link>
