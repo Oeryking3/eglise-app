@@ -1,10 +1,30 @@
 import { useEffect, useRef } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors, spacing } from '@/theme/tokens';
 
 const advertisements = [
-  { title: 'Orange CI', detail: 'Orange Money', color: '#FF7900' },
+  {
+    title: 'Orange Money',
+    detail: 'Envoyez, recevez et payez simplement.',
+    colors: ['#FF9D00', '#F15A24'] as const,
+    mark: 'OM',
+  },
+  {
+    title: 'Orange Côte d’Ivoire',
+    detail: 'Restez connectés à ceux qui comptent.',
+    colors: ['#F15A24', '#C9361B'] as const,
+    mark: 'O',
+  },
+  {
+    title: 'Orange Money',
+    detail: 'Votre quotidien, plus simple avec Orange.',
+    colors: ['#FF7900', '#E94820'] as const,
+    mark: 'OM',
+  },
 ];
+
+const CARD_WIDTH = 304;
 
 export function SponsorBanner() {
   const scrollRef = useRef<ScrollView>(null);
@@ -12,7 +32,9 @@ export function SponsorBanner() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      offset.current = offset.current >= 220 ? 0 : offset.current + 110;
+      offset.current = offset.current >= CARD_WIDTH * (advertisements.length - 1)
+        ? 0
+        : offset.current + CARD_WIDTH;
       scrollRef.current?.scrollTo({ x: offset.current, animated: true });
     }, 2400);
 
@@ -26,16 +48,25 @@ export function SponsorBanner() {
         ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.logoRow}
+        contentContainerStyle={styles.carousel}
       >
-        {advertisements.concat(advertisements).map((advertisement, index) => (
-          <View key={`${advertisement.title}-${index}`} style={styles.advertisement}>
-            <View style={[styles.adMark, { backgroundColor: advertisement.color }]} />
-            <View>
+        {advertisements.map((advertisement) => (
+          <LinearGradient
+            key={advertisement.title + advertisement.detail}
+            colors={advertisement.colors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.advertisement}
+          >
+            <View style={styles.adCopy}>
+              <Text style={styles.adBrand}>ORANGE</Text>
               <Text style={styles.adTitle}>{advertisement.title}</Text>
               <Text style={styles.adDetail}>{advertisement.detail}</Text>
             </View>
-          </View>
+            <View style={styles.adMark}>
+              <Text style={styles.adMarkText}>{advertisement.mark}</Text>
+            </View>
+          </LinearGradient>
         ))}
       </ScrollView>
     </View>
@@ -50,7 +81,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     marginBottom: spacing.xl,
     marginHorizontal: -spacing.xl,
-    paddingVertical: spacing.sm,
+    paddingBottom: spacing.md,
+    paddingTop: spacing.sm,
   },
   eyebrow: {
     color: colors.textFaint,
@@ -60,30 +92,46 @@ const styles = StyleSheet.create({
     marginBottom: 3,
     paddingHorizontal: spacing.xl,
   },
-  logoRow: {
-    alignItems: 'center',
-    gap: spacing.xl,
+  carousel: {
+    gap: spacing.md,
     paddingHorizontal: spacing.xl,
   },
   advertisement: {
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    borderRadius: 14,
     flexDirection: 'row',
-    minWidth: 164,
+    height: 108,
+    justifyContent: 'space-between',
+    overflow: 'hidden',
+    padding: spacing.lg,
+    width: CARD_WIDTH,
   },
+  adCopy: { flex: 1 },
   adMark: {
-    borderRadius: 5,
-    height: 28,
-    marginRight: spacing.sm,
-    width: 5,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 999,
+    height: 58,
+    justifyContent: 'center',
+    marginLeft: spacing.md,
+    width: 58,
   },
+  adMarkText: {
+    color: '#F15A24',
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  adBrand: { color: 'rgba(255,255,255,0.8)', fontSize: 9, fontWeight: '900', letterSpacing: 1.5 },
   adTitle: {
-    color: colors.textDark,
-    fontSize: 11,
+    color: colors.white,
+    fontSize: 17,
     fontWeight: '800',
+    marginTop: 3,
   },
   adDetail: {
-    color: colors.textLight,
-    fontSize: 10,
-    marginTop: 2,
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 11,
+    lineHeight: 15,
+    marginTop: 4,
   },
 });
