@@ -1,15 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { api } from '@/lib/api';
 import { colors, spacing } from '@/theme/tokens';
 
-type CarouselSlide = {
-  id: number;
-  image_url: string;
-  ordre: number;
-  actif: boolean;
-};
+const advertisements = [
+  { id: 'ebinto', source: require('../../assets/images/carousel/homeB2CEbinto.jpeg') },
+  { id: 'orange-money', source: require('../../assets/images/carousel/orange-money-newAccueil.png') },
+  { id: 'orange-max', source: require('../../assets/images/carousel/VisuelPortailB2C-28-07-2026.png') },
+];
 
 const AD_GAP = 16;
 
@@ -18,15 +15,6 @@ export function SponsorBanner() {
   const offset = useRef(0);
   const { width } = useWindowDimensions();
   const cardWidth = Math.min(width - 40, 470);
-
-  const { data: advertisements = [] } = useQuery({
-    queryKey: ['member-carousel'],
-    queryFn: async () => {
-      const response = await api.get<{ data: CarouselSlide[] }>('/carousel');
-      return response.data.data ?? [];
-    },
-    retry: 1,
-  });
 
   useEffect(() => {
     if (advertisements.length < 2) {
@@ -49,10 +37,6 @@ export function SponsorBanner() {
     offset.current = event.nativeEvent.contentOffset.x;
   };
 
-  if (!advertisements.length) {
-    return null;
-  }
-
   return (
     <View style={styles.banner} accessibilityLabel="Espace publicitaire">
       <Text style={styles.eyebrow}>PUBLICITÉ</Text>
@@ -72,7 +56,7 @@ export function SponsorBanner() {
           <Image
             key={advertisement.id}
             accessibilityLabel="Publicité Orange"
-            source={{ uri: advertisement.image_url }}
+            source={advertisement.source}
             resizeMode="cover"
             style={[styles.advertisement, { width: cardWidth }]}
           />
