@@ -27,7 +27,7 @@ export default function AdminEvenementModifierScreen() {
     form.append('important', values.important ? '1' : '0');
     form.append('_method', 'PUT');
     if (values.image) {
-      appendImageAsset(form, 'image', values.image);
+      await appendImageAsset(form, 'image', values.image);
     }
 
     try {

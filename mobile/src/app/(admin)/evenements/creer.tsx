@@ -18,7 +18,7 @@ export default function AdminEvenementCreerScreen() {
     form.append('heure_fin', values.heure_fin);
     form.append('important', values.important ? '1' : '0');
     if (values.image) {
-      appendImageAsset(form, 'image', values.image);
+      await appendImageAsset(form, 'image', values.image);
     }
 
     try {

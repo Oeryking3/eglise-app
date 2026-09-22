@@ -61,7 +61,7 @@ export default function AdminCarteModifierScreen() {
       form.append('carte_membre', carteMembre ? '1' : '0');
       form.append('_method', 'PUT');
       if (photo) {
-        appendImageAsset(form, 'carte_photo', photo);
+        await appendImageAsset(form, 'carte_photo', photo);
       }
 
       await api.post(`/admin/cartes/${id}`, form, { headers: { 'Content-Type': 'multipart/form-data' } });
