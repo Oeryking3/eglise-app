@@ -56,6 +56,28 @@ export function SponsorBanner() {
   return (
     <View style={styles.banner} accessibilityLabel="Espace publicitaire">
       <Text style={styles.eyebrow}>PUBLICITÉ</Text>
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        pagingEnabled
+        snapToInterval={cardWidth + AD_GAP}
+        snapToAlignment="start"
+        decelerationRate="fast"
+        showsHorizontalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        contentContainerStyle={[styles.carousel, { paddingHorizontal: 20, gap: AD_GAP }]}
+      >
+        {advertisements.map((advertisement) => (
+          <Image
+            key={advertisement.id}
+            accessibilityLabel="Publicité Orange"
+            source={{ uri: advertisement.image_url }}
+            resizeMode="cover"
+            style={[styles.advertisement, { width: cardWidth }]}
+          />
+        ))}
+      </ScrollView>
       {Platform.OS === 'web' ? (
         <iframe
           title="Publicité officielle Orange Money"
@@ -79,28 +101,6 @@ export function SponsorBanner() {
           <Text style={styles.videoAction}>▶</Text>
         </Pressable>
       )}
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        pagingEnabled
-        snapToInterval={cardWidth + AD_GAP}
-        snapToAlignment="start"
-        decelerationRate="fast"
-        showsHorizontalScrollIndicator={false}
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        contentContainerStyle={[styles.carousel, { paddingHorizontal: 20, gap: AD_GAP }]}
-      >
-        {advertisements.map((advertisement) => (
-          <Image
-            key={advertisement.id}
-            accessibilityLabel="Publicité Orange"
-            source={{ uri: advertisement.image_url }}
-            resizeMode="cover"
-            style={[styles.advertisement, { width: cardWidth }]}
-          />
-        ))}
-      </ScrollView>
     </View>
   );
 }
