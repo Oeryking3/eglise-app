@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { api } from '@/lib/api';
 import { colors, spacing } from '@/theme/tokens';
 
@@ -78,29 +78,6 @@ export function SponsorBanner() {
           />
         ))}
       </ScrollView>
-      {Platform.OS === 'web' ? (
-        <iframe
-          title="Publicité officielle Orange Money"
-          src="https://www.youtube-nocookie.com/embed/CBsWR5V0Jmg?controls=1&rel=0"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowFullScreen
-          style={styles.videoFrame}
-        />
-      ) : (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Regarder la publicité Orange Money"
-          onPress={() => Linking.openURL('https://www.youtube.com/watch?v=CBsWR5V0Jmg')}
-          style={styles.videoCard}
-        >
-          <View style={styles.videoBadge}><Text style={styles.videoBadgeText}>VIDÉO</Text></View>
-          <View style={styles.videoCopy}>
-            <Text style={styles.videoTitle}>Orange Money</Text>
-            <Text style={styles.videoSubtitle}>Plus sûr et moins cher</Text>
-          </View>
-          <Text style={styles.videoAction}>▶</Text>
-        </Pressable>
-      )}
     </View>
   );
 }
@@ -124,38 +101,6 @@ const styles = StyleSheet.create({
     marginBottom: 3,
     paddingHorizontal: spacing.xl,
   },
-  videoCard: {
-    alignItems: 'center',
-    backgroundColor: '#fff4e8',
-    borderColor: colors.orangeBorder,
-    borderRadius: 16,
-    borderWidth: 1,
-    flexDirection: 'row',
-    marginBottom: spacing.md,
-    marginHorizontal: 20,
-    padding: spacing.md,
-  },
-  videoFrame: {
-    alignSelf: 'center',
-    borderWidth: 0,
-    height: 220,
-    marginBottom: spacing.md,
-    maxWidth: 720,
-    width: '100%',
-  },
-  videoBadge: {
-    alignItems: 'center',
-    backgroundColor: colors.orange,
-    borderRadius: 10,
-    height: 42,
-    justifyContent: 'center',
-    width: 50,
-  },
-  videoBadgeText: { color: '#fff', fontSize: 9, fontWeight: '800' },
-  videoCopy: { flex: 1, marginLeft: spacing.md },
-  videoTitle: { color: colors.textDark, fontSize: 14, fontWeight: '800' },
-  videoSubtitle: { color: colors.textMuted, fontSize: 12, marginTop: 2 },
-  videoAction: { color: colors.orangeDark, fontSize: 22, fontWeight: '800', paddingLeft: spacing.sm },
   carousel: {
     alignItems: 'stretch',
     paddingRight: spacing.xl,

@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PillButton } from '@/components/PillButton';
 import { SponsorBanner } from '@/components/SponsorBanner';
@@ -224,6 +224,28 @@ export default function AccueilScreen() {
 
               </>
             )}
+            <View style={styles.orangeVideoSection}>
+              <Text style={styles.orangeVideoLabel}>PUBLICITÉ</Text>
+              {Platform.OS === 'web' ? (
+                <iframe
+                  title="Publicité officielle Orange Money"
+                  src="https://www.youtube-nocookie.com/embed/CBsWR5V0Jmg?controls=1&rel=0"
+                  allow="autoplay; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  style={styles.orangeVideoFrame}
+                />
+              ) : (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Regarder la publicité Orange Money"
+                  onPress={() => Linking.openURL('https://www.youtube.com/watch?v=CBsWR5V0Jmg')}
+                  style={styles.orangeVideoCard}
+                >
+                  <Text style={styles.orangeVideoTitle}>Orange Money</Text>
+                  <Text style={styles.orangeVideoSubtitle}>Plus sûr et moins cher · Regarder la vidéo</Text>
+                </Pressable>
+              )}
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -321,6 +343,12 @@ const styles = StyleSheet.create({
     paddingTop: 140,
     paddingBottom: 60,
   },
+  orangeVideoSection: { marginTop: spacing.xxl, paddingBottom: spacing.xl },
+  orangeVideoLabel: { color: staticColors.textFaint, fontSize: 10, fontWeight: '800', letterSpacing: 1.2, marginBottom: spacing.sm },
+  orangeVideoFrame: { alignSelf: 'center', borderWidth: 0, height: 220, maxWidth: 720, width: '100%' },
+  orangeVideoCard: { backgroundColor: staticColors.orangeLight, borderColor: staticColors.orangeBorder, borderRadius: radii.md, borderWidth: 1, padding: spacing.lg },
+  orangeVideoTitle: { color: staticColors.textDark, fontSize: 16, fontWeight: '800' },
+  orangeVideoSubtitle: { color: staticColors.textMuted, fontSize: 13, marginTop: spacing.xs },
   liveBanner: {
     flexDirection: 'row',
     alignItems: 'center',
