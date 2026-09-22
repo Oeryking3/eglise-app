@@ -128,5 +128,4 @@ Route::middleware('feature:carte')->prefix('cartes')->name('cartes.')->group(fun
     Route::post('/{member}/activer', [MembershipCardController::class, 'activate'])->name('activate');
     Route::post('/{member}/desactiver', [MembershipCardController::class, 'deactivate'])->name('deactivate');
     Route::delete('/{member}', [MembershipCardController::class, 'destroy'])->name('destroy');
-});
-});
+});});

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AgendaController;
 use App\Http\Controllers\Api\Admin\CardBenefitController as AdminCardBenefitController;
+use App\Http\Controllers\Api\Admin\CarouselSlideController;
 use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Api\Admin\LivreController as AdminLivreController;
@@ -56,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 
     Route::get('/accueil', [DashboardController::class, 'index']);
+    Route::get('/carousel', [CarouselSlideController::class, 'index']);
 
     Route::middleware('feature:evenements')->group(function () {
         Route::get('/evenements', [EventController::class, 'index']);
@@ -163,5 +165,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/cartes/{member}/desactiver', [MembershipCardController::class, 'deactivate']);
             Route::delete('/cartes/{member}', [MembershipCardController::class, 'destroy']);
         });
+
+        Route::post('/carousel', [CarouselSlideController::class, 'store']);
+        Route::put('/carousel/{slide}', [CarouselSlideController::class, 'update']);
+        Route::delete('/carousel/{slide}', [CarouselSlideController::class, 'destroy']);
     });
 });

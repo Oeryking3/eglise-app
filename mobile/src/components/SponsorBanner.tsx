@@ -1,45 +1,57 @@
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { api } from '@/lib/api';
 import { colors, spacing } from '@/theme/tokens';
 
-const advertisements = [
-  {
-    title: 'Orange Money',
-    detail: 'Envoyez, recevez et payez simplement.',
-    colors: ['#FF9D00', '#F15A24'] as const,
-    mark: 'OM',
-  },
-  {
-    title: 'Orange Côte d’Ivoire',
-    detail: 'Restez connectés à ceux qui comptent.',
-    colors: ['#F15A24', '#C9361B'] as const,
-    mark: 'O',
-  },
-  {
-    title: 'Orange Money',
-    detail: 'Votre quotidien, plus simple avec Orange.',
-    colors: ['#FF7900', '#E94820'] as const,
-    mark: 'OM',
-  },
-];
+type CarouselSlide = {
+  id: number;
+  image_url: string;
+  ordre: number;
+  actif: boolean;
+};
 
-const CARD_WIDTH = 304;
+const AD_GAP = 16;
 
 export function SponsorBanner() {
   const scrollRef = useRef<ScrollView>(null);
   const offset = useRef(0);
+  const { width } = useWindowDimensions();
+  const cardWidth = Math.min(width - 40, 470);
+
+  const { data: advertisements = [] } = useQuery({
+    queryKey: ['member-carousel'],
+    queryFn: async () => {
+      const response = await api.get<{ data: CarouselSlide[] }>('/carousel');
+      return response.data.data ?? [];
+    },
+    retry: 1,
+  });
 
   useEffect(() => {
+    if (advertisements.length < 2) {
+      return;
+    }
+
     const interval = setInterval(() => {
-      offset.current = offset.current >= CARD_WIDTH * (advertisements.length - 1)
+      const nextOffset = offset.current >= (cardWidth + AD_GAP) * (advertisements.length - 1)
         ? 0
-        : offset.current + CARD_WIDTH;
-      scrollRef.current?.scrollTo({ x: offset.current, animated: true });
-    }, 2400);
+        : offset.current + cardWidth + AD_GAP;
+
+      offset.current = nextOffset;
+      scrollRef.current?.scrollTo({ x: nextOffset, animated: true });
+    }, 3200);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [advertisements.length, cardWidth]);
+
+  const onScroll = (event: { nativeEvent: { contentOffset: { x: number } } }) => {
+    offset.current = event.nativeEvent.contentOffset.x;
+  };
+
+  if (!advertisements.length) {
+    return null;
+  }
 
   return (
     <View style={styles.banner} accessibilityLabel="Espace publicitaire">
@@ -47,26 +59,23 @@ export function SponsorBanner() {
       <ScrollView
         ref={scrollRef}
         horizontal
+        pagingEnabled
+        snapToInterval={cardWidth + AD_GAP}
+        snapToAlignment="start"
+        decelerationRate="fast"
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.carousel}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        contentContainerStyle={[styles.carousel, { paddingHorizontal: 20, gap: AD_GAP }]}
       >
         {advertisements.map((advertisement) => (
-          <LinearGradient
-            key={advertisement.title + advertisement.detail}
-            colors={advertisement.colors}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.advertisement}
-          >
-            <View style={styles.adCopy}>
-              <Text style={styles.adBrand}>ORANGE</Text>
-              <Text style={styles.adTitle}>{advertisement.title}</Text>
-              <Text style={styles.adDetail}>{advertisement.detail}</Text>
-            </View>
-            <View style={styles.adMark}>
-              <Text style={styles.adMarkText}>{advertisement.mark}</Text>
-            </View>
-          </LinearGradient>
+          <Image
+            key={advertisement.id}
+            accessibilityLabel="Publicité Orange"
+            source={{ uri: advertisement.image_url }}
+            resizeMode="cover"
+            style={[styles.advertisement, { width: cardWidth }]}
+          />
         ))}
       </ScrollView>
     </View>
@@ -93,45 +102,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   carousel: {
-    gap: spacing.md,
-    paddingHorizontal: spacing.xl,
+    alignItems: 'stretch',
+    paddingRight: spacing.xl,
   },
   advertisement: {
-    alignItems: 'flex-end',
-    borderRadius: 14,
-    flexDirection: 'row',
-    height: 108,
-    justifyContent: 'space-between',
+    borderRadius: 20,
+    height: 170,
     overflow: 'hidden',
-    padding: spacing.lg,
-    width: CARD_WIDTH,
-  },
-  adCopy: { flex: 1 },
-  adMark: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 999,
-    height: 58,
-    justifyContent: 'center',
-    marginLeft: spacing.md,
-    width: 58,
-  },
-  adMarkText: {
-    color: '#F15A24',
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  adBrand: { color: 'rgba(255,255,255,0.8)', fontSize: 9, fontWeight: '900', letterSpacing: 1.5 },
-  adTitle: {
-    color: colors.white,
-    fontSize: 17,
-    fontWeight: '800',
-    marginTop: 3,
-  },
-  adDetail: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: 11,
-    lineHeight: 15,
-    marginTop: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.08)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 5,
   },
 });
