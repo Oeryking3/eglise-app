@@ -5,13 +5,17 @@ namespace Tests\Feature;
 use App\Http\Controllers\Api\Admin\CarouselSlideController;
 use App\Models\CarouselSlide;
 use App\Models\Eglise;
+use App\Services\TenantContext;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CarouselSlideTest extends TestCase
 {
-    public function test_destroy_deactivates_slide_instead_of_deleting_it(): void
+    public function test_destroy_deletes_slide_and_its_stored_image(): void
     {
         Schema::create('eglises', function (Blueprint $table) {
             $table->id();
@@ -39,6 +43,13 @@ class CarouselSlideTest extends TestCase
             $table->timestamps();
         });
 
+        $migration = require database_path('migrations/2026_10_02_000001_add_video_to_carousel_slides_table.php');
+        $migration->up();
+        $this->assertTrue(Schema::hasColumn('carousel_slides', 'video'));
+        $videoLinkMigration = require database_path('migrations/2026_10_02_000002_use_video_links_for_carousel_ads.php');
+        $videoLinkMigration->up();
+        $this->assertTrue(Schema::hasColumn('carousel_slides', 'video_url'));
+
         $eglise = Eglise::create([
             'nom' => 'Église Test',
             'code' => 'TEST',
@@ -52,20 +63,48 @@ class CarouselSlideTest extends TestCase
             'membres_sequence' => 1,
         ]);
 
+        $this->app->instance(TenantContext::class, new class($eglise->id)
+        {
+            public function __construct(private int $egliseId)
+            {
+            }
+
+            public function egliseId(): int
+            {
+                return $this->egliseId;
+            }
+
+            public function bypassed(): bool
+            {
+                return false;
+            }
+        });
+
+        Storage::fake('public');
+        $image = UploadedFile::fake()->createWithContent(
+            'publicite.png',
+            base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/pWQAAAAASUVORK5CYII=')
+        );
+        $imageResponse = (new CarouselSlideController())->store(Request::create('/', 'POST', [], [], ['image' => $image]));
+        $this->assertSame(201, $imageResponse->getStatusCode());
+
+        $videoUrl = 'https://www.youtube.com/watch?v=test-video';
+        $videoResponse = (new CarouselSlideController())->store(Request::create('/', 'POST', ['video_url' => $videoUrl]));
+        $this->assertSame(201, $videoResponse->getStatusCode());
+        $this->assertDatabaseHas('carousel_slides', ['video_url' => $videoUrl, 'image' => null]);
+
         $slide = CarouselSlide::create([
             'eglise_id' => $eglise->id,
             'image' => 'carousel/test.jpg',
+            'video_url' => 'https://www.youtube.com/watch?v=test-video',
             'ordre' => 0,
             'actif' => true,
         ]);
+        Storage::disk('public')->put('carousel/test.jpg', 'image-content');
 
         (new CarouselSlideController())->destroy($slide);
 
-        $this->assertDatabaseHas('carousel_slides', [
-            'id' => $slide->id,
-            'actif' => false,
-        ]);
-
-        $this->assertNotNull(CarouselSlide::find($slide->id));
+        $this->assertDatabaseMissing('carousel_slides', ['id' => $slide->id]);
+        Storage::disk('public')->assertMissing('carousel/test.jpg');
     }
 }

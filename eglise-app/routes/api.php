@@ -166,6 +166,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('/cartes/{member}', [MembershipCardController::class, 'destroy']);
         });
 
+        Route::get('/carousel', [CarouselSlideController::class, 'manage']);
         Route::post('/carousel', [CarouselSlideController::class, 'store']);
         Route::put('/carousel/{slide}', [CarouselSlideController::class, 'update']);
         Route::delete('/carousel/{slide}', [CarouselSlideController::class, 'destroy']);

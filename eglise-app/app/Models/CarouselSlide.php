@@ -14,6 +14,7 @@ class CarouselSlide extends Model
     protected $fillable = [
         'eglise_id',
         'image',
+        'video_url',
         'ordre',
         'actif',
     ];
@@ -27,4 +28,5 @@ class CarouselSlide extends Model
     {
         return $this->image ? asset('storage/' . $this->image) : null;
     }
+
 }

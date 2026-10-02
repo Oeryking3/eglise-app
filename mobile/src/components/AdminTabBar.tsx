@@ -21,6 +21,7 @@ const MORE_LINKS = [
   { icon: 'radio', label: 'Direct', href: '/(admin)/direct', feature: 'direct' },
   { icon: 'gift', label: 'Avantages', href: '/(admin)/avantages', feature: 'avantages' },
   { icon: 'clock', label: 'Programme', href: '/(admin)/programme', feature: 'programme' },
+  { icon: 'image', label: 'Publicités', href: '/(admin)/carousel', feature: null },
 ] as const;
 
 export function AdminTabBar() {

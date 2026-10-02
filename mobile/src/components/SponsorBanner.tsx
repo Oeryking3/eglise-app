@@ -1,12 +1,15 @@
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { AdvertisementMedia } from '@/components/AdvertisementMedia';
+import { api } from '@/lib/api';
 import { colors, spacing } from '@/theme/tokens';
 
-const advertisements = [
-  { id: 'ebinto', source: require('../../assets/images/carousel/homeB2CEbinto.jpeg') },
-  { id: 'orange-money', source: require('../../assets/images/carousel/orange-money-newAccueil.png') },
-  { id: 'orange-max', source: require('../../assets/images/carousel/VisuelPortailB2C-28-07-2026.png') },
-];
+type Advertisement = {
+  id: number;
+  image_url: string | null;
+  video_url: string | null;
+};
 
 const AD_GAP = 16;
 
@@ -15,14 +18,19 @@ export function SponsorBanner() {
   const offset = useRef(0);
   const { width } = useWindowDimensions();
   const cardWidth = Math.min(width - 40, 470);
+  const { data: advertisements = [] } = useQuery({
+    queryKey: ['carousel'],
+    queryFn: async () => (await api.get<{ data: Advertisement[] }>('/carousel')).data.data,
+  });
+  const imageAdvertisements = advertisements.filter((advertisement) => advertisement.image_url);
 
   useEffect(() => {
-    if (advertisements.length < 2) {
+    if (imageAdvertisements.length < 2) {
       return;
     }
 
     const interval = setInterval(() => {
-      const nextOffset = offset.current >= (cardWidth + AD_GAP) * (advertisements.length - 1)
+      const nextOffset = offset.current >= (cardWidth + AD_GAP) * (imageAdvertisements.length - 1)
         ? 0
         : offset.current + cardWidth + AD_GAP;
 
@@ -31,11 +39,13 @@ export function SponsorBanner() {
     }, 3200);
 
     return () => clearInterval(interval);
-  }, [advertisements.length, cardWidth]);
+  }, [imageAdvertisements.length, cardWidth]);
 
   const onScroll = (event: { nativeEvent: { contentOffset: { x: number } } }) => {
     offset.current = event.nativeEvent.contentOffset.x;
   };
+
+  if (imageAdvertisements.length === 0) return null;
 
   return (
     <View style={styles.banner} accessibilityLabel="Espace publicitaire">
@@ -52,12 +62,11 @@ export function SponsorBanner() {
         scrollEventThrottle={16}
         contentContainerStyle={[styles.carousel, { paddingHorizontal: 20, gap: AD_GAP }]}
       >
-        {advertisements.map((advertisement) => (
-          <Image
+        {imageAdvertisements.map((advertisement) => (
+          <AdvertisementMedia
             key={advertisement.id}
-            accessibilityLabel="Publicité Orange"
-            source={advertisement.source}
-            resizeMode="cover"
+            imageUrl={advertisement.image_url}
+            videoUrl={advertisement.video_url}
             style={[styles.advertisement, { width: cardWidth }]}
           />
         ))}

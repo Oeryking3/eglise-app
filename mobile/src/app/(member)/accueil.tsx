@@ -4,8 +4,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AdvertisementMedia } from '@/components/AdvertisementMedia';
 import { PillButton } from '@/components/PillButton';
 import { SponsorBanner } from '@/components/SponsorBanner';
 import { api } from '@/lib/api';
@@ -21,6 +22,12 @@ type DashboardResponse = {
   notifications: { data: ChurchNotification[] } | ChurchNotification[];
   live_stream: LiveStream;
   agenda_reminders: { data: AgendaItem[] } | AgendaItem[];
+};
+
+type Advertisement = {
+  id: number;
+  image_url: string | null;
+  video_url: string | null;
 };
 
 function unwrap<T>(value: { data: T[] } | T[]): T[] {
@@ -44,6 +51,10 @@ export default function AccueilScreen() {
     enabled: user?.eglise_features.programme !== false,
     retry: 1,
   });
+  const { data: advertisements = [] } = useQuery({
+    queryKey: ['carousel'],
+    queryFn: async () => (await api.get<{ data: Advertisement[] }>('/carousel')).data.data,
+  });
   const onLogout = async () => {
     await logout();
     router.replace('/(auth)/login');
@@ -53,6 +64,7 @@ export default function AccueilScreen() {
   const notifications = data ? unwrap(data.notifications) : [];
   const reminders = data ? unwrap(data.agenda_reminders) : [];
   const programme = programmeData ? (Array.isArray(programmeData) ? programmeData : programmeData.data) : [];
+  const videoAdvertisements = advertisements.filter((advertisement) => advertisement.video_url);
   const features = user?.eglise_features ?? {
     evenements: true,
     agenda: true,
@@ -224,28 +236,19 @@ export default function AccueilScreen() {
 
               </>
             )}
-            <View style={styles.orangeVideoSection}>
-              <Text style={styles.orangeVideoLabel}>PUBLICITÉ</Text>
-              {Platform.OS === 'web' ? (
-                <iframe
-                  title="Publicité officielle Orange Money"
-                  src="https://www.youtube-nocookie.com/embed/CBsWR5V0Jmg?controls=1&rel=0"
-                  allow="autoplay; encrypted-media; picture-in-picture"
-                  allowFullScreen
-                  style={styles.orangeVideoFrame}
-                />
-              ) : (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Regarder la publicité Orange Money"
-                  onPress={() => Linking.openURL('https://www.youtube.com/watch?v=CBsWR5V0Jmg')}
-                  style={styles.orangeVideoCard}
-                >
-                  <Text style={styles.orangeVideoTitle}>Orange Money</Text>
-                  <Text style={styles.orangeVideoSubtitle}>Plus sûr et moins cher · Regarder la vidéo</Text>
-                </Pressable>
-              )}
-            </View>
+            {videoAdvertisements.length > 0 ? (
+              <View style={styles.videoAdvertisements}>
+                <Text style={styles.videoAdvertisementLabel}>PUBLICITÉ</Text>
+                {videoAdvertisements.map((advertisement) => (
+                  <AdvertisementMedia
+                    key={advertisement.id}
+                    imageUrl={advertisement.image_url}
+                    videoUrl={advertisement.video_url}
+                    style={styles.videoAdvertisement}
+                  />
+                ))}
+              </View>
+            ) : null}
           </View>
         </View>
       </ScrollView>
@@ -343,12 +346,26 @@ const styles = StyleSheet.create({
     paddingTop: 140,
     paddingBottom: 60,
   },
-  orangeVideoSection: { marginTop: spacing.xxl, paddingBottom: spacing.xl },
-  orangeVideoLabel: { color: staticColors.textFaint, fontSize: 10, fontWeight: '800', letterSpacing: 1.2, marginBottom: spacing.sm },
-  orangeVideoFrame: { alignSelf: 'center', borderWidth: 0, height: 220, maxWidth: 720, width: '100%' },
-  orangeVideoCard: { backgroundColor: staticColors.orangeLight, borderColor: staticColors.orangeBorder, borderRadius: radii.md, borderWidth: 1, padding: spacing.lg },
-  orangeVideoTitle: { color: staticColors.textDark, fontSize: 16, fontWeight: '800' },
-  orangeVideoSubtitle: { color: staticColors.textMuted, fontSize: 13, marginTop: spacing.xs },
+  videoAdvertisements: {
+    marginTop: spacing.xxl,
+    paddingTop: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: staticColors.cardBorder,
+    gap: spacing.md,
+  },
+  videoAdvertisementLabel: {
+    color: staticColors.textFaint,
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  videoAdvertisement: {
+    width: '100%',
+    maxWidth: 720,
+    aspectRatio: 16 / 9,
+    borderRadius: radii.md,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
   liveBanner: {
     flexDirection: 'row',
     alignItems: 'center',
