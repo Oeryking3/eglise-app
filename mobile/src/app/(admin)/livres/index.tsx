@@ -58,6 +58,12 @@ export default function AdminLivresScreen() {
               <Text style={styles.price}>{livre.prix.toLocaleString('fr-FR')} FCFA</Text>
               <View style={styles.actions}>
                 <PillButton
+                  title="Modifier"
+                  variant="outline"
+                  style={styles.actionBtn}
+                  onPress={() => router.push(`/(admin)/livres/${livre.id}/modifier` as never)}
+                />
+                <PillButton
                   title="Voir le PDF"
                   variant="outline"
                   style={styles.actionBtn}

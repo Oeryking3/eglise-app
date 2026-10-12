@@ -131,6 +131,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::get('/livres', [AdminLivreController::class, 'index']);
             Route::post('/livres', [AdminLivreController::class, 'store']);
+            Route::put('/livres/{livre}', [AdminLivreController::class, 'update']);
             Route::delete('/livres/{livre}', [AdminLivreController::class, 'destroy']);
         });
 

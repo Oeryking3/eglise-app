@@ -32,6 +32,19 @@ class LivreController extends Controller
         return response()->json(['livre' => new LivreResource($livre)], 201);
     }
 
+    public function update(Request $request, Livre $livre)
+    {
+        $data = $request->validate([
+            'titre' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'prix' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $livre->update($data);
+
+        return response()->json(['livre' => new LivreResource($livre)]);
+    }
+
     public function destroy(Livre $livre)
     {
         if ($livre->fichier && Storage::disk('public')->exists($livre->fichier)) {
