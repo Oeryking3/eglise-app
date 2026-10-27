@@ -49,6 +49,27 @@ const QUICK_LINKS = [
   { icon: 'edit-3', label: 'Notes', href: '/(member)/notes', feature: null, tint: '#FCE8F3', color: '#B83C80' },
 ] as const;
 
+function QuickLinkIcon({ icon, color }: { icon: typeof QUICK_LINKS[number]['icon']; color: string }) {
+  if (icon === 'credit-card') {
+    return (
+      <View style={styles.cardIcon}>
+        <View style={[styles.cardIconStripe, { backgroundColor: color }]} />
+      </View>
+    );
+  }
+
+  if (icon === 'edit-3') {
+    return (
+      <View style={styles.noteIcon}>
+        <View style={[styles.notePencil, { borderColor: color }]} />
+        <View style={[styles.notePencilLine, { backgroundColor: color }]} />
+      </View>
+    );
+  }
+
+  return <Feather name={icon} size={26} color={color} />;
+}
+
 export default function AccueilScreen() {
   const { user, logout } = useAuth();
   const colors = useThemeColors();
@@ -165,7 +186,7 @@ export default function AccueilScreen() {
                   style={styles.quickLink}
                 >
                   <View style={[styles.quickLinkIcon, { backgroundColor: link.tint }]}>
-                    <Feather name={link.icon} size={26} color={link.color} />
+                    <QuickLinkIcon icon={link.icon} color={link.color} />
                   </View>
                   <Text numberOfLines={1} style={styles.quickLinkLabel}>{link.label}</Text>
                 </Pressable>
@@ -399,6 +420,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  cardIcon: {
+    width: 26,
+    height: 21,
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#873BC0',
+    borderRadius: 3,
+  },
+  cardIconStripe: { width: '100%', height: 3 },
+  noteIcon: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
+  notePencil: {
+    position: 'absolute',
+    top: 6,
+    left: 2,
+    width: 21,
+    height: 7,
+    borderWidth: 3,
+    borderRadius: 2,
+    transform: [{ rotate: '-45deg' }],
+  },
+  notePencilLine: { position: 'absolute', right: 0, bottom: 3, width: 12, height: 3, borderRadius: 2 },
   quickLinkLabel: {
     color: staticColors.textDark,
     fontSize: 12,
