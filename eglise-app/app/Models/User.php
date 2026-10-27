@@ -35,6 +35,8 @@ class User extends Authenticatable
 
     protected static function booted(): void
     {
+        // À la création, rattache le membre au contexte courant et lui attribue
+        // un identifiant séquentiel unique dans son église.
         static::creating(function (User $user) {
             if (empty($user->eglise_id) && ! in_array($user->role, ['super_admin'], true)) {
                 $user->eglise_id = app(TenantContext::class)->egliseId();
@@ -55,6 +57,8 @@ class User extends Authenticatable
 
     public function scopeForActingTenant($query)
     {
+        // Le filtre dépend du contexte de la requête ; il peut être désactivé
+        // lorsque celle-ci ne comporte pas d'utilisateur authentifié.
         $context = app(TenantContext::class);
 
         return $context->bypassed() ? $query : $query->where('eglise_id', $context->egliseId());
@@ -98,6 +102,7 @@ class User extends Authenticatable
 
     public function getCarteEstValideAttribute(): bool
     {
+        // Une carte est valide seulement si elle est activée et non expirée.
         if (! $this->carte_membre) {
             return false;
         }

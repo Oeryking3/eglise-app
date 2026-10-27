@@ -18,6 +18,7 @@ import { colors as staticColors, radii, spacing } from '@/theme/tokens';
 
 type DashboardResponse = {
   user: User;
+  membres: number;
   upcoming_events: { data: EventItem[] } | EventItem[];
   notifications: { data: ChurchNotification[] } | ChurchNotification[];
   live_stream: LiveStream;
@@ -36,6 +37,17 @@ function unwrap<T>(value: { data: T[] } | T[]): T[] {
 
 // Largeur d'une carte événement (styles.eventCard.width) + son marginRight.
 const EVENT_CARD_STRIDE = 220 + 12;
+
+const QUICK_LINKS = [
+  { icon: 'book-open', label: 'Bible', href: '/(member)/bible', feature: null, tint: '#FFF6CF', color: '#C58A08' },
+  { icon: 'heart', label: 'Dîme', href: '/(member)/don', feature: null, tint: '#FFE8EE', color: '#D83B63' },
+  { icon: 'gift', label: 'Offrandes', href: '/(member)/offrandes', feature: null, tint: '#E5F9E7', color: '#2D9B43' },
+  { icon: 'credit-card', label: 'Carte', href: '/(member)/carte', feature: 'carte', tint: '#F2E8FC', color: '#873BC0' },
+  { icon: 'book', label: 'Livres', href: '/(member)/livres', feature: 'livres', tint: '#E4F8F4', color: '#168B78' },
+  { icon: 'calendar', label: 'Ordre du jour', href: '/(member)/agenda', feature: 'agenda', tint: '#FFF1DF', color: '#C56B19' },
+  { icon: 'calendar', label: 'Évènements', href: '/(member)/evenements', feature: 'evenements', tint: '#E6F1FC', color: '#3675B8' },
+  { icon: 'edit-3', label: 'Notes', href: '/(member)/notes', feature: null, tint: '#FCE8F3', color: '#B83C80' },
+] as const;
 
 export default function AccueilScreen() {
   const { user, logout } = useAuth();
@@ -107,6 +119,12 @@ export default function AccueilScreen() {
               <Text style={styles.headerSub}>Que la paix du Seigneur soit avec toi.</Text>
             </View>
             <View style={styles.headerIcons}>
+              {typeof data?.membres === 'number' ? (
+                <View style={styles.memberCount} accessibilityLabel={`${data.membres} membres`}>
+                  <Feather name="users" size={15} color="#fff" />
+                  <Text style={styles.memberCountText}>{data.membres}</Text>
+                </View>
+              ) : null}
               <Pressable onPress={() => setRemindersOpen(true)} hitSlop={12} style={{ position: 'relative' }}>
                 <Feather name="bell" size={20} color="#fff" />
                 {reminders.length > 0 ? <View style={styles.bellBadge} /> : null}
@@ -137,6 +155,22 @@ export default function AccueilScreen() {
         <View style={styles.sheet}>
           <View style={styles.sheetContent}>
             <SponsorBanner />
+
+            <View style={styles.quickLinks}>
+              {QUICK_LINKS.filter((link) => link.feature === null || features[link.feature] !== false).map((link) => (
+                <Pressable
+                  key={link.label}
+                  accessibilityRole="button"
+                  onPress={() => router.navigate(link.href as never)}
+                  style={styles.quickLink}
+                >
+                  <View style={[styles.quickLinkIcon, { backgroundColor: link.tint }]}>
+                    <Feather name={link.icon} size={26} color={link.color} />
+                  </View>
+                  <Text numberOfLines={1} style={styles.quickLinkLabel}>{link.label}</Text>
+                </Pressable>
+              ))}
+            </View>
 
             {isLoading ? (
               <ActivityIndicator style={{ marginTop: 40 }} color={colors.orange} />
@@ -345,6 +379,46 @@ const styles = StyleSheet.create({
     // pour que "Évènements à venir" ne soit pas caché dessous.
     paddingTop: 140,
     paddingBottom: 60,
+  },
+  quickLinks: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: spacing.xl,
+  },
+  quickLink: {
+    width: '33.333%',
+    minHeight: 108,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.sm,
+  },
+  quickLinkIcon: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickLinkLabel: {
+    color: staticColors.textDark,
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: spacing.xs,
+    textAlign: 'center',
+  },
+  memberCount: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  memberCountText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '800',
   },
   videoAdvertisements: {
     marginTop: spacing.xxl,

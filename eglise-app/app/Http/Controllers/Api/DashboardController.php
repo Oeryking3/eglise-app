@@ -12,6 +12,7 @@ use App\Models\AgendaItem;
 use App\Models\ChurchNotification;
 use App\Models\Event;
 use App\Models\LiveStream;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -46,6 +47,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'user' => new UserResource($user),
+            'membres' => User::forActingTenant()->where('role', 'membre')->count(),
             'upcoming_events' => EventResource::collection($upcomingEvents),
             'notifications' => ChurchNotificationResource::collection($notifications),
             'live_stream' => $liveStream ? new LiveStreamResource($liveStream) : null,

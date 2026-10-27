@@ -13,6 +13,10 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    /**
+     * Vérifie les identifiants, refuse l'accès aux églises désactivées et crée
+     * le jeton Sanctum utilisé par l'application mobile.
+     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -42,6 +46,10 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Crée un compte membre rattaché à une église active et applique, si elle
+     * existe, la carte préparée lors d'un import administratif.
+     */
     public function register(Request $request)
     {
         $data = $request->validate([
@@ -87,6 +95,7 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /** Révoque uniquement le jeton utilisé pour cette session. */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -94,6 +103,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Déconnecté.']);
     }
 
+    /** Renvoie le profil associé au jeton actuellement authentifié. */
     public function me(Request $request)
     {
         return new UserResource($request->user());

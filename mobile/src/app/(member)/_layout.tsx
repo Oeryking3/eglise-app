@@ -1,6 +1,5 @@
 import { Redirect, Stack } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
-import { MemberTabBar } from '@/components/MemberTabBar';
 import { useAuth } from '@/lib/auth-context';
 import { colors } from '@/theme/tokens';
 
@@ -21,10 +20,7 @@ export default function MemberLayout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-        <Stack screenOptions={{ headerShown: false }} />
-      </View>
-      <MemberTabBar />
+      <Stack screenOptions={{ headerShown: false }} />
     </View>
   );
 }

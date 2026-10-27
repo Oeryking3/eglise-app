@@ -49,6 +49,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [activeEgliseId, setActiveEgliseIdState] = useState<number | null>(null);
 
   useEffect(() => {
+    // Restaure la session enregistrée au lancement et récupère le profil côté API.
     (async () => {
       const token = await getToken();
       if (!token) {
@@ -88,6 +89,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
   };
 
   const requestChurchAdmin = async (payload: Parameters<AuthContextValue['requestChurchAdmin']>[0]) => {
+    // Cette demande est examinée par un super-admin : elle ne crée pas
+    // immédiatement un compte administrateur.
     try {
       const { data } = await api.post<{ message: string }>('/eglises/demandes', payload);
       return data.message;

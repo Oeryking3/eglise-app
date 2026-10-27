@@ -15,6 +15,8 @@ export const api = axios.create({
   headers: { Accept: 'application/json' },
 });
 
+// Chaque requête authentifiée reçoit le jeton local et l'église active afin que
+// l'API Laravel applique les droits et le bon contexte multi-église.
 api.interceptors.request.use(async (config) => {
   const token = await getItem(TOKEN_KEY);
   if (token) {
@@ -58,6 +60,8 @@ export type ApiValidationError = {
 };
 
 export function extractErrorMessage(error: unknown): string {
+  // Priorité au premier message de validation renvoyé par Laravel, puis au
+  // message général de l'API, avec un texte de secours pour les autres erreurs.
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as ApiValidationError | undefined;
     if (data?.errors) {

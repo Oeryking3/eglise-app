@@ -16,6 +16,7 @@ class TenantContext
     {
     }
 
+    /** Retourne l'église définie pour la requête en cours. */
     public function egliseId(): ?int
     {
         $this->resolve();
@@ -23,6 +24,7 @@ class TenantContext
         return $this->egliseId;
     }
 
+    /** Indique qu'aucun filtre d'église ne doit être appliqué à cette requête. */
     public function bypassed(): bool
     {
         $this->resolve();
@@ -30,6 +32,11 @@ class TenantContext
         return $this->bypass;
     }
 
+    /**
+    * Résout une seule fois le contexte : sans utilisateur authentifié, le
+    * filtre est contourné ; un super-admin peut choisir une église par en-tête
+    * ou paramètre, tandis que les autres utilisateurs restent dans la leur.
+     */
     private function resolve(): void
     {
         if ($this->resolved) {

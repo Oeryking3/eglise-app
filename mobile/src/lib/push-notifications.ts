@@ -17,7 +17,7 @@ Notifications.setNotificationHandler({
 // l'inscription aux notifications ne doit jamais bloquer l'usage de l'app.
 export async function registerForPushNotifications(): Promise<void> {
   try {
-    if (!Device.isDevice) return;
+    if (Platform.OS === 'web' || !Device.isDevice) return;
 
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;

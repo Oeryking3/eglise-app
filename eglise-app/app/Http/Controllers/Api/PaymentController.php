@@ -99,6 +99,8 @@ class PaymentController extends Controller
 
     public function donation(Request $request, GeniusPayService $geniuspay)
     {
+        // Le serveur valide les types et montants avant de créer la transaction,
+        // puis transmet le don au même parcours de paiement hébergé que les livres.
         $data = $request->validate([
             'montant' => ['required', 'integer', 'min:500', 'max:10000000'],
             'type' => ['required', 'in:dime,offrande,offrande_journaliere'],
@@ -168,6 +170,8 @@ class PaymentController extends Controller
 
     public function show(Request $request, Payment $payment, GeniusPayService $geniuspay)
     {
+        // Un membre ne consulte que ses paiements ; un statut encore en attente
+        // est actualisé auprès du prestataire avant de construire la réponse.
         abort_if($payment->user_id !== $request->user()->id, 403);
 
         if ($payment->statut === 'en_attente') {
